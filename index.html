@@ -1020,6 +1020,42 @@
   </main>
 </div>
 
+<!-- chat fab -->
+<button class="chat-fab" id="chatFab" title="Ask a question">
+  💬
+  <span class="fab-badge">AI</span>
+</button>
+
+<!-- chat panel -->
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-header-dot"></div>
+    <div>
+      <div class="chat-header-title">Ops Assistant</div>
+      <div class="chat-header-sub">Ask me anything about Caytral Ops</div>
+    </div>
+    <button class="chat-close" id="chatCloseBtn">✕</button>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">
+      <div class="chat-bubble">Hey Mahayla 👋 I know everything about Caytral Ops. Ask me which agent to use, how a button works, or what to do if something goes wrong.</div>
+    </div>
+  </div>
+
+  <div class="chat-suggestions" id="chatSuggestions">
+    <button class="chat-suggestion">Which agent do I use for emails?</button>
+    <button class="chat-suggestion">How do I fix an error?</button>
+    <button class="chat-suggestion">What happens at 8AM?</button>
+    <button class="chat-suggestion">What does Run now do?</button>
+  </div>
+
+  <div class="chat-input-row">
+    <textarea class="chat-input" id="chatInput" placeholder="Ask a question…" rows="1"></textarea>
+    <button class="chat-send" id="chatSend">↑</button>
+  </div>
+</div>
+
 <script>
   // ── accordion ──
   document.querySelectorAll('.faq-q').forEach(btn => {
@@ -1046,6 +1082,8 @@
   const inputEl = document.getElementById('chatInput');
   const sendBtn = document.getElementById('chatSend');
   const suggestionsEl = document.getElementById('chatSuggestions');
+  const fab = document.getElementById('chatFab');
+  const panel = document.getElementById('chatPanel');
 
   function appendMsg(role, text, isTyping = false) {
     const wrap = document.createElement('div');
@@ -1102,49 +1140,11 @@
     btn.addEventListener('click', () => sendMessage(btn.textContent));
   });
 
-  const fab = document.getElementById('chatFab');
-  const panel = document.getElementById('chatPanel');
   fab.addEventListener('click', () => {
     panel.classList.toggle('open');
     if (panel.classList.contains('open')) inputEl.focus();
   });
   document.getElementById('chatCloseBtn').addEventListener('click', () => panel.classList.remove('open'));
 </script>
-
-<!-- chat fab -->
-<button class="chat-fab" id="chatFab" title="Ask a question">
-  💬
-  <span class="fab-badge">AI</span>
-</button>
-
-<!-- chat panel -->
-<div class="chat-panel" id="chatPanel">
-  <div class="chat-header">
-    <div class="chat-header-dot"></div>
-    <div>
-      <div class="chat-header-title">Ops Assistant</div>
-      <div class="chat-header-sub">Ask me anything about Caytral Ops</div>
-    </div>
-    <button class="chat-close" id="chatCloseBtn">✕</button>
-  </div>
-
-  <div class="chat-messages" id="chatMessages">
-    <div class="chat-msg bot">
-      <div class="chat-bubble">Hey Mahayla 👋 I know everything about Caytral Ops. Ask me which agent to use, how a button works, or what to do if something goes wrong.</div>
-    </div>
-  </div>
-
-  <div class="chat-suggestions" id="chatSuggestions">
-    <button class="chat-suggestion">Which agent do I use for emails?</button>
-    <button class="chat-suggestion">How do I fix an error?</button>
-    <button class="chat-suggestion">What happens at 8AM?</button>
-    <button class="chat-suggestion">What does Run now do?</button>
-  </div>
-
-  <div class="chat-input-row">
-    <textarea class="chat-input" id="chatInput" placeholder="Ask a question…" rows="1"></textarea>
-    <button class="chat-send" id="chatSend">↑</button>
-  </div>
-</div>
 </body>
 </html>
