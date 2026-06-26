@@ -1262,6 +1262,12 @@
       followUps: ['assign_task','agent_picker']
     },
     {
+      id: 'live_demo',
+      tags: ['demo','interactive','live','simulate','simulation','showcase','prospect','sales','show','client','presentation','call','phone','demo page','build demo','make demo','create demo','cayesdesk demo','product demo'],
+      answer: '**The Engineer agent can build you a live interactive demo page** — a realistic simulation of a CayesDesk AI agent handling a patient call that you can use in actual sales demos.\n\nHere\'s exactly what to put in the task:\n\n**Title:** `Live Interactive CayesDesk Demo Page`\n\n**Description:** (paste this)\n> Build a single self-contained HTML page simulating a CayesDesk AI phone agent handling a patient call at a medical clinic. Show a phone UI with a "Call Now" button. When clicked, play out a realistic conversation where the AI collects the patient\'s name, reason for visit, preferred date/time, and insurance info — messages typewriting in one at a time. End with a green booking confirmation card. Dark modern UI (#0e1014 background, #7aa2f7 accent). Include a live call timer, pulsing badge, and "Try Again" button. Single HTML file, no external dependencies, no APIs needed.\n\nAfter it runs, send the output to the **QA agent** to review before using it in a real demo.',
+      followUps: ['assign_task','engineer','qa_agent']
+    },
+    {
       id: 'greeting',
       tags: ['hi','hello','hey','sup','yo','good','morning','afternoon','evening'],
       answer: 'Hey! I\'m your Caytral Ops assistant — I know everything about this dashboard.\n\nAsk me anything:\n→ **"Which agent should I use for X?"**\n→ **"How do I send a task?"**\n→ **"What does the red dot mean?"**\n→ **"Give me task ideas"**\n→ **"Agent X keeps erroring — how do I fix it?"**',
@@ -1344,6 +1350,10 @@
     if (/\bwhich agent\b|\bwhat agent\b|\bwho should i\b/.test(q)) {
       convCtx.lastId = 'agent_picker';
       return KB.find(e => e.id === 'agent_picker').answer;
+    }
+    if (/\b(demo|interactive|live demo|simulate|simulation|showcase|sales demo|product demo)\b/.test(q)) {
+      convCtx.lastId = 'live_demo';
+      return KB.find(e => e.id === 'live_demo').answer;
     }
 
     const match = getBestMatch(input);
