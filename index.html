@@ -1076,8 +1076,145 @@
   }, { threshold: 0.3 });
   sections.forEach(s => observer.observe(s));
 
-  // ── chat assistant ──
-  const chatHistory = [];
+  // ── chat assistant (no API — built-in knowledge base) ──
+  const KB = [
+    {
+      keys: ['what is caytral','what is this','what does this do','what is cayesdesk','overview','caytral ops'],
+      answer: '**Caytral Ops** is your AI operations dashboard at ops.cayesdesk.com. It gives you 7 AI agents that work tasks on your behalf — you assign the job, they do the work, you review the output. It costs $350/mo and agents auto-run Mon–Fri at 8AM EST.'
+    },
+    {
+      keys: ['how many agent','how much','cost','price','pricing','350'],
+      answer: 'You have **7 agents** for **$350/month**. They run automatically every weekday at 8AM EST. You can also trigger any agent manually at any time using **Run now**.'
+    },
+    {
+      keys: ['orchestrator','ceo','delegate','coordinate','multi-step','complex project'],
+      answer: '**Orchestrator (CEO · Opus 4.6)** is your manager agent. Use it for complex multi-step projects — it breaks down the work and delegates to the right agents.\n\n**Example:** "Plan a 3-month outreach campaign — research competitors, draft email sequences, and build a content calendar."'
+    },
+    {
+      keys: ['research','researcher','investigate','market research','competitive','find information','gather data'],
+      answer: '**Research (Researcher · Sonnet 4.6)** digs into topics and writes structured reports.\n\n**Best for:** Market research, competitive analysis, finding info on companies or industries.\n\n**Example:** "Find the top 10 medical clinics in Broward County that still use manual phone scheduling."'
+    },
+    {
+      keys: ['engineer','code','coding','bug','fix','technical','implement','feature','developer'],
+      answer: '**Engineer (Engineer · Sonnet 4.6)** writes and fixes code, implements features, handles technical tasks.\n\n**Best for:** Code changes, bug fixes, building new features.\n\n**Example:** "Add a webhook that receives Twilio call logs and saves them to the database."'
+    },
+    {
+      keys: ['comms','email','emails','draft','customer','message','outreach','communication','write email','cold email'],
+      answer: '**Comms (General · Azure OpenAI)** drafts all external-facing communication.\n\n**Best for:** Cold outreach emails, customer responses, proposals.\n\n**Example:** "Draft a cold email to a dental clinic explaining what CayesDesk does and why they should book a demo."'
+    },
+    {
+      keys: ['analyst','cfo','finance','financial','budget','metrics','revenue','numbers','data','analysis','report'],
+      answer: '**Analyst (CFO · Opus 4.6)** reviews numbers and produces data-driven reports.\n\n**Best for:** Financial analysis, revenue projections, metrics review.\n\n**Example:** "How many clients do we need to break even at $299/mo per client?"'
+    },
+    {
+      keys: ['content','cmo','marketing','blog','social','copy','landing page','post','ad'],
+      answer: '**Content (CMO · Sonnet 4.6)** creates marketing copy, blog posts, and social content.\n\n**Best for:** Landing pages, marketing copy, blog posts, social media.\n\n**Example:** "Write a landing page headline and 3 benefit bullets for CayesDesk targeting clinic owners."'
+    },
+    {
+      keys: ['qa','quality','review','test','check','verify'],
+      answer: '**QA (QA · Opus 4.6)** reviews work from other agents and catches errors before anything goes out.\n\n**Best for:** Reviewing emails, checking code, quality control on any output.\n\n**Example:** "Review this email draft — check tone, clarity, and flag anything that seems off."'
+    },
+    {
+      keys: ['which agent','what agent','who should','who do i','what should i use','best agent','right agent'],
+      answer: 'Here\'s the quick guide:\n\n**Emails/comms** → Comms\n**Code/technical** → Engineer\n**Research/data** → Research\n**Marketing copy** → Content\n**Numbers/finance** → Analyst\n**Quality review** → QA\n**Big multi-step project** → Orchestrator (it delegates to the others)\n\nTell me what you\'re trying to do and I\'ll pick the right one for you.'
+    },
+    {
+      keys: ['assign task','assign a task','give task','create task','new task','+ button','plus button'],
+      answer: 'To assign a task:\n\n1. Go to **Agents page**\n2. Find the right agent\n3. Click **+** on that agent\'s row\n4. Fill in a **title** (short label) and **description** (your actual instructions — be specific!)\n5. Click **Create** — task is queued\n6. Click **▶ Run now** to process immediately, or wait for 8AM EST\n\n**Tip:** The more detail you put in the description, the better the output.'
+    },
+    {
+      keys: ['run now','trigger','immediately','right now','force run','manual'],
+      answer: '**Run now (▶)** triggers the agent immediately — it skips the 8AM schedule and processes all queued tasks right away.\n\nUse it whenever you don\'t want to wait. It\'s on the right side of every agent row.'
+    },
+    {
+      keys: ['pause','paused','stop agent','resume','yellow'],
+      answer: '**Pause (⏸)** stops the agent from running on schedule. The dot turns yellow and the agent won\'t pick up any new tasks.\n\nTo restart it: click **Resume** (same button location, it changes when paused).\n\nUse it if an agent is doing something wrong and you need to stop it.'
+    },
+    {
+      keys: ['clear error','error button','reset error'],
+      answer: '**Clear error (✓)** resets the agent from error state back to idle.\n\n⚠️ **Important:** This button only fixes the state — it does NOT fix the underlying problem. You must read the error logs first and fix the root cause, otherwise it will just error again.\n\nSteps: Agent → Runs tab → failed run → read error → fix it → THEN click Clear error.'
+    },
+    {
+      keys: ['more button','···','duplicate','copy agent','reset session','terminate'],
+      answer: 'The **··· (More)** button opens advanced options:\n\n- **Duplicate Agent** — clone the agent\'s config\n- **Copy Agent ID** — get the agent\'s ID\n- **Reset Sessions** — clear the agent\'s session history\n- **Terminate** — ⚠️ permanently destroys the agent. Do not click unless you mean it.'
+    },
+    {
+      keys: ['green dot','active','idle','ready'],
+      answer: '**Green dot = Active/Idle.** The agent is healthy and ready to work. No action needed — just assign a task whenever you\'re ready.'
+    },
+    {
+      keys: ['blue dot','running','pulsing','live','working'],
+      answer: '**Blue pulsing dot = Running.** The agent is actively working on a task right now.\n\nTo watch it: click the agent name → **Runs tab** → click the active run. You\'ll see the live transcript in real time.'
+    },
+    {
+      keys: ['red dot','error','stuck','broken','failed'],
+      answer: '**Red dot = Error.** Something went wrong.\n\nHere\'s what to do:\n1. Click the agent → **Runs tab** → click the failed run\n2. Read the error message\n3. Fix the root cause (common causes: expired API key, rate limit, bad task description)\n4. Then click **Clear error** to bring it back online'
+    },
+    {
+      keys: ['gray dot','grey dot','queued','waiting','queue'],
+      answer: '**Gray dot = Queued.** A task is assigned but the agent hasn\'t started yet.\n\nClick **▶ Run now** to process it immediately, or wait for the 8AM EST auto-run.'
+    },
+    {
+      keys: ['yellow dot','paused dot'],
+      answer: '**Yellow dot = Paused.** The agent was manually paused and won\'t run until you click **Resume**.'
+    },
+    {
+      keys: ['status','dot','dots','color','colour','badge','indicator'],
+      answer: 'Here\'s what each status dot means:\n\n🟢 **Green** — Active/Idle. Ready to work.\n🔵 **Blue (pulsing)** — Running right now. Check Runs tab for live output.\n🟡 **Yellow** — Paused. Click Resume to re-activate.\n🔴 **Red** — Error. Read the logs, fix the cause, then Clear error.\n⚫ **Gray** — Queued. Click Run now or wait for 8AM.'
+    },
+    {
+      keys: ['schedule','8am','8 am','auto run','automatic','weekday','monday','friday','heartbeat'],
+      answer: 'Every **weekday (Mon–Fri) at 8:00 AM EST**, all agents automatically check their task queues and process everything that\'s been assigned.\n\nYou don\'t need to do anything — just assign tasks and they\'ll be handled in the morning.\n\n**Tips:**\n→ Assign tasks the night before for results waiting in the morning\n→ Use **Run now** any time you don\'t want to wait\n→ Weekends: agents don\'t auto-run, use Run now'
+    },
+    {
+      keys: ['routine','recurring','repeat','schedule task','automate','automatic task'],
+      answer: 'To set up a recurring routine:\n\n1. Go to the **Routines page** in the nav\n2. Click **New Routine**\n3. Set the title, description (what to do each time), which agent, and the schedule\n4. Save — it runs automatically on that schedule, no manual trigger needed\n\n**Example:** Assign Analyst to run a weekly revenue summary every Monday at 8AM.'
+    },
+    {
+      keys: ['see output','what did it do','result','transcript','ran','runs tab','history','log'],
+      answer: 'To see what an agent did:\n\n1. Click the **agent name** to open its detail page\n2. Go to the **Runs tab**\n3. Click any completed run\n\nYou\'ll see: full conversation transcript, every tool call it made, the final output, and token usage.'
+    },
+    {
+      keys: ['nothing happened','task not running','not working','task not processing','assigned but'],
+      answer: 'Tasks don\'t auto-start — they queue until the next run.\n\nFix: Click **▶ Run now** on that agent\'s row to process it immediately.\n\nOr wait for the 8AM EST weekday auto-run. You can also check the **Tasks page** to confirm the task saved correctly.'
+    },
+    {
+      keys: ['not running on schedule','not running','skip schedule','missing run','didn\'t run'],
+      answer: 'Check these three things in order:\n\n1. **Is the agent paused?** Look for a yellow dot — if yes, click Resume.\n2. **Is the budget exhausted?** Go to the **Budget tab** on the agent — zero budget = agent won\'t run.\n3. **Are there tasks queued?** Agents only run when there\'s something to do.\n\nYou can always click **Run now** to force an immediate check.'
+    },
+    {
+      keys: ['bad output','bad result','wrong answer','not good','improve output','better result','quality'],
+      answer: 'Poor output almost always comes down to the task description. Here\'s how to fix it:\n\n- **Be specific** — include context, constraints, and who the audience is\n- **State the format** you want back (email, bullet list, report, table, etc.)\n- **Use the right agent** — sending a writing task to Engineer will get worse results than Comms or Content\n- **More context = better output** — tell it what you already know so it doesn\'t waste time'
+    },
+    {
+      keys: ['no button','can\'t see button','buttons missing','button not showing','don\'t see button'],
+      answer: 'The action buttons only appear on the **Agents page** — check that your URL contains **/agents**.\n\nIf you\'re on the right page but still can\'t see them: try widening your browser window. On smaller or narrower screens, only the icons show (no text labels).'
+    },
+    {
+      keys: ['opus','sonnet','azure','model','gpt','which model','difference'],
+      answer: 'The platform already assigned the right model to each agent:\n\n- **Opus 4.6** (most powerful) → Orchestrator, Analyst, QA\n- **Sonnet 4.6** (fast & efficient) → Research, Engineer, Content\n- **Azure OpenAI** → Comms\n\nYou don\'t need to change anything — the right model is already in place.'
+    },
+    {
+      keys: ['hi','hello','hey','what can you do','help','what do you know'],
+      answer: 'Hey! I\'m the Caytral Ops Assistant. I only know things about this dashboard — no outside info.\n\nAsk me things like:\n- **"Which agent do I use for emails?"**\n- **"How do I fix an error?"**\n- **"What does Run now do?"**\n- **"How do I see what an agent did?"**'
+    }
+  ];
+
+  function getReply(input) {
+    const q = input.toLowerCase().trim();
+    let best = null;
+    let bestScore = 0;
+    for (const entry of KB) {
+      let score = 0;
+      for (const k of entry.keys) {
+        if (q.includes(k)) score += k.length;
+      }
+      if (score > bestScore) { bestScore = score; best = entry; }
+    }
+    if (best && bestScore > 0) return best.answer;
+    return "I don't have information about that — it's not covered in this guide. Check **ops.cayesdesk.com** directly or contact support for anything outside the dashboard basics.";
+  }
+
   const messagesEl = document.getElementById('chatMessages');
   const inputEl = document.getElementById('chatInput');
   const sendBtn = document.getElementById('chatSend');
@@ -1101,34 +1238,20 @@
     return wrap;
   }
 
-  async function sendMessage(text) {
+  function sendMessage(text) {
     if (!text.trim()) return;
     suggestionsEl.style.display = 'none';
     appendMsg('user', text);
-    chatHistory.push({ role: 'user', parts: [{ text }] });
     inputEl.value = '';
     sendBtn.disabled = true;
 
     const thinkingEl = appendMsg('bot', '', true);
-
-    try {
-      const res = await fetch('/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: chatHistory })
-      });
-      const data = await res.json();
-      const reply = data?.reply || 'Sorry, I couldn\'t get a response. Try again.';
+    setTimeout(() => {
       thinkingEl.remove();
-      appendMsg('bot', reply);
-      chatHistory.push({ role: 'model', parts: [{ text: reply }] });
-    } catch (e) {
-      thinkingEl.remove();
-      appendMsg('bot', 'Connection error — make sure you\'re online and try again.');
-    }
-
-    sendBtn.disabled = false;
-    inputEl.focus();
+      appendMsg('bot', getReply(text));
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }, 400);
   }
 
   sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
