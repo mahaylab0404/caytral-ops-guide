@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Caytral Ops Guide</title>
+  <style>
+    :root {
+      --bg: #0e1014;
+      --bg-soft: #131620;
+      --panel: #181b25;
+      --panel-elev: #1f232f;
+      --panel-hover: #262b38;
+      --border: #262b36;
+      --border-soft: #1e222c;
+      --text: #e7e9f0;
+      --text-dim: #9aa2b3;
+      --text-faint: #6a7282;
+      --accent: #7aa2f7;
+      --accent-dim: #3b4a73;
+      --accent-soft: #223053;
+      --danger: #e06c75;
+      --success: #98c379;
+      --warning: #e5c07b;
+      --purple: #bb9af7;
+      --cyan: #7dcfff;
+      --orange: #ff9e64;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --nav-width: 238px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── sidebar ── */
+    .sidebar {
+      width: var(--nav-width);
+      background: var(--bg-soft);
+      border-right: 1px solid var(--border-soft);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-logo {
+      padding: 20px 18px 14px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .sidebar-logo .logo-title {
+      font-size: 13px; font-weight: 700; color: var(--accent);
+      letter-spacing: .04em; text-transform: uppercase;
+    }
+    .sidebar-logo .logo-sub { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 700; color: var(--text-faint);
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 12px 18px 4px;
+    }
+    .nav-list { list-style: none; padding: 0 8px 8px; flex: 1; }
+    .nav-list li a {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; border-radius: var(--radius-sm);
+      text-decoration: none; color: var(--text-dim); font-size: 13px;
+      transition: background .15s, color .15s;
+    }
+    .nav-list li a:hover, .nav-list li a.active {
+      background: var(--panel-hover); color: var(--text);
+    }
+    .nav-list li a .nav-icon { font-size: 13px; width: 18px; text-align: center; }
+    .sidebar-footer { padding: 14px 18px; border-top: 1px solid var(--border-soft); }
+    .open-btn {
+      display: block; width: 100%; text-align: center;
+      padding: 8px 0; background: var(--accent); color: #0e1014;
+      font-weight: 700; font-size: 13px; border-radius: var(--radius-sm);
+      text-decoration: none; transition: opacity .15s;
+    }
+    .open-btn:hover { opacity: .85; }
+
+    /* ── main ── */
+    .main {
+      flex: 1; overflow-y: auto; padding: 40px 48px 80px; max-width: 900px;
+    }
+
+    /* ── hero ── */
+    .hero { margin-bottom: 48px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent-soft); border: 1px solid var(--accent-dim);
+      color: var(--accent); font-size: 12px; font-weight: 600;
+      padding: 4px 10px; border-radius: 20px; margin-bottom: 14px;
+    }
+    .hero h1 { font-size: 32px; font-weight: 800; line-height: 1.2; }
+    .hero p { color: var(--text-dim); font-size: 16px; margin-top: 10px; max-width: 580px; }
+    .hero-stats { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+    .hero-stat { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-dim); }
+    .hero-stat span { color: var(--text); font-weight: 600; }
+
+    /* ── section ── */
+    section { margin-bottom: 56px; scroll-margin-top: 24px; }
+    .section-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .section-heading h2 { font-size: 20px; font-weight: 700; }
+    .section-icon { font-size: 22px; }
+    .section-sub { color: var(--text-dim); font-size: 14px; margin-bottom: 20px; }
+
+    /* ── divider ── */
+    .divider { border: none; border-top: 1px solid var(--border-soft); margin: 0 0 48px; }
+
+    /* ── callout / tip ── */
+    .tip {
+      display: flex; gap: 10px; align-items: flex-start;
+      background: rgba(122,162,247,.07); border: 1px solid var(--accent-dim);
+      border-radius: var(--radius-sm); padding: 11px 14px;
+      font-size: 13px; color: var(--text-dim); line-height: 1.5;
+      margin-top: 12px;
+    }
+    .tip-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .tip strong { color: var(--accent); }
+    .warn {
+      display: flex; gap: 10px; align-items: flex-start;
+      background: rgba(229,192,123,.07); border: 1px solid rgba(229,192,123,.3);
+      border-radius: var(--radius-sm); padding: 11px 14px;
+      font-size: 13px; color: var(--text-dim); line-height: 1.5;
+      margin-top: 12px;
+    }
+    .warn strong { color: var(--warning); }
+
+    /* ── quick start mockup ── */
+    .mock-label-top {
+      font-size: 12px; color: var(--text-faint); margin-bottom: 8px; padding-left: 2px;
+    }
+    .mock-row {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 18px;
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+    }
+    .mock-agent-info { display: flex; align-items: center; gap: 12px; }
+    .mock-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+    .mock-name { font-weight: 600; font-size: 14px; }
+    .mock-meta { font-size: 12px; color: var(--text-faint); }
+    .mock-buttons { display: flex; gap: 6px; }
+    .mock-btn {
+      background: var(--panel-elev); border: 1px solid var(--border);
+      color: var(--text-dim); border-radius: var(--radius-sm);
+      padding: 5px 10px; font-size: 12px; cursor: default;
+    }
+    .mock-btn.primary { background: var(--accent-soft); border-color: var(--accent-dim); color: var(--accent); }
+    .mock-callout {
+      font-size: 12px; color: var(--text-faint); margin-top: 6px; padding-left: 4px;
+    }
+    .mock-callout span { color: var(--accent); }
+
+    /* ── first task walkthrough ── */
+    .first-task {
+      background: var(--panel); border: 1px solid var(--accent-dim);
+      border-radius: var(--radius); overflow: hidden; margin-top: 24px;
+    }
+    .first-task-header {
+      background: var(--accent-soft); padding: 12px 18px;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid var(--accent-dim);
+    }
+    .first-task-header span { font-size: 14px; font-weight: 700; color: var(--accent); }
+    .first-task-header small { font-size: 12px; color: var(--text-dim); }
+    .first-task-body { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .ft-step { display: flex; align-items: flex-start; gap: 14px; }
+    .ft-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--accent); color: #0e1014;
+      font-size: 12px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .ft-content { flex: 1; }
+    .ft-action { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .ft-detail { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+    .ft-detail code {
+      background: var(--panel-elev); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px; font-size: 12px;
+      color: var(--accent); font-family: "SF Mono","Fira Code",monospace;
+    }
+    .ft-example {
+      background: var(--bg-soft); border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      font-size: 13px; color: var(--text-dim); font-style: italic;
+      margin-top: 8px; line-height: 1.5;
+    }
+    .ft-example strong { color: var(--text); font-style: normal; }
+
+    /* ── button cards ── */
+    .btn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
+    .btn-card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .btn-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .btn-label { font-weight: 700; font-size: 14px; }
+    .btn-symbol {
+      background: var(--panel-elev); border: 1px solid var(--border);
+      border-radius: 6px; padding: 3px 8px; font-size: 13px;
+      color: var(--accent); font-weight: 700;
+    }
+    .btn-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 8px; }
+    .btn-when {
+      font-size: 12px; background: var(--bg-soft); border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm); padding: 6px 10px; color: var(--text-faint);
+    }
+    .btn-when strong { color: var(--text-dim); }
+
+    /* ── agent grid ── */
+    .agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 12px; }
+    .agent-card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      transition: border-color .15s; display: flex; flex-direction: column;
+    }
+    .agent-card:hover { border-color: var(--accent-dim); }
+    .agent-card-top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; margin-bottom: 4px;
+    }
+    .agent-name { font-weight: 700; font-size: 15px; }
+    .agent-role {
+      font-size: 11px; font-weight: 600; padding: 2px 8px;
+      border-radius: 20px; white-space: nowrap;
+    }
+    .role-ceo   { background: rgba(187,154,247,.15); color: var(--purple); }
+    .role-res   { background: rgba(122,207,255,.15); color: var(--cyan); }
+    .role-eng   { background: rgba(152,195,121,.15); color: var(--success); }
+    .role-comms { background: rgba(229,192,123,.15); color: var(--warning); }
+    .role-cfo   { background: rgba(255,158,100,.15); color: var(--orange); }
+    .role-cmo   { background: rgba(224,108,117,.15); color: var(--danger); }
+    .role-qa    { background: rgba(122,162,247,.15); color: var(--accent); }
+
+    .agent-model { font-size: 11px; color: var(--text-faint); margin-bottom: 10px; }
+    .agent-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.45; flex: 1; }
+    .agent-best {
+      font-size: 12px; background: var(--bg-soft); border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm); padding: 5px 10px; color: var(--text-dim); margin-bottom: 8px;
+    }
+    .agent-best strong { color: var(--text); }
+    .agent-example {
+      font-size: 12px; color: var(--text-faint); font-style: italic;
+      border-top: 1px solid var(--border-soft); padding-top: 8px; margin-top: 2px;
+      line-height: 1.45;
+    }
+    .agent-example strong { color: var(--accent); font-style: normal; font-weight: 600; }
+
+    /* ── status table ── */
+    .status-list { display: flex; flex-direction: column; gap: 10px; }
+    .status-row {
+      display: grid; grid-template-columns: 10px 110px 1fr 1fr;
+      align-items: center; gap: 14px;
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px 16px;
+    }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dot-active  { background: var(--success); }
+    .dot-running { background: var(--accent); animation: pulse 1.4s infinite; }
+    .dot-paused  { background: var(--warning); }
+    .dot-error   { background: var(--danger); }
+    .dot-queued  { background: var(--text-faint); }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(122,162,247,.6); }
+      50%      { box-shadow: 0 0 0 5px rgba(122,162,247,0); }
+    }
+    .status-name { font-weight: 600; font-size: 13px; }
+    .status-desc { font-size: 13px; color: var(--text-dim); }
+    .status-action { font-size: 12px; color: var(--text-faint); line-height: 1.4; }
+    .status-action strong { color: var(--text-dim); }
+    .status-header {
+      display: grid; grid-template-columns: 10px 110px 1fr 1fr;
+      gap: 14px; padding: 6px 16px; margin-bottom: 4px;
+    }
+    .status-header span { font-size: 11px; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: .06em; }
+
+    /* ── workflows ── */
+    .workflow-group { display: flex; flex-direction: column; gap: 16px; }
+    .workflow-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .workflow-header {
+      padding: 14px 18px; border-bottom: 1px solid var(--border-soft);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .workflow-header h3 { font-size: 15px; font-weight: 700; }
+    .workflow-icon { font-size: 16px; }
+    .workflow-steps { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+    .step { display: flex; align-items: flex-start; gap: 12px; }
+    .step-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--accent-soft); border: 1px solid var(--accent-dim);
+      color: var(--accent); font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .step-text { font-size: 14px; color: var(--text-dim); line-height: 1.5; }
+    .step-text code {
+      background: var(--panel-elev); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px; font-size: 12px;
+      color: var(--accent); font-family: "SF Mono","Fira Code",monospace;
+    }
+    .step-note { font-size: 12px; color: var(--text-faint); margin-top: 3px; }
+
+    /* ── schedule ── */
+    .schedule-card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent); border-radius: var(--radius);
+      padding: 24px 28px; display: flex; gap: 28px; align-items: center;
+    }
+    .schedule-time { text-align: center; flex-shrink: 0; }
+    .schedule-time .time { font-size: 28px; font-weight: 800; color: var(--accent); }
+    .schedule-time .days { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+    .schedule-desc { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+    .schedule-desc strong { color: var(--text); }
+    .schedule-tips { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+    .schedule-tip { font-size: 13px; color: var(--text-dim); display: flex; gap: 8px; }
+    .schedule-tip::before { content: "→"; color: var(--accent); flex-shrink: 0; }
+
+    /* ── faq ── */
+    .faq-list { display: flex; flex-direction: column; gap: 8px; }
+    .faq-item { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .faq-q {
+      width: 100%; background: none; border: none; color: var(--text);
+      font-size: 14px; font-weight: 600; text-align: left;
+      padding: 14px 18px; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      transition: background .15s;
+    }
+    .faq-q:hover { background: var(--panel-hover); }
+    .faq-arrow { font-size: 12px; color: var(--text-faint); transition: transform .2s; flex-shrink: 0; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-a {
+      display: none; padding: 0 18px 14px; font-size: 13px;
+      color: var(--text-dim); line-height: 1.6;
+      border-top: 1px solid var(--border-soft);
+    }
+    .faq-item.open .faq-a { display: block; padding-top: 12px; }
+    .faq-a code {
+      background: var(--panel-elev); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px; font-size: 12px;
+      color: var(--accent); font-family: "SF Mono","Fira Code",monospace;
+    }
+
+    /* ── chat widget ── */
+    .chat-fab {
+      position: fixed; bottom: 28px; right: 28px; z-index: 100;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--accent); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; box-shadow: 0 4px 20px rgba(122,162,247,.4);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .chat-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(122,162,247,.55); }
+    .chat-fab .fab-badge {
+      position: absolute; top: -2px; right: -2px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--success); border: 2px solid var(--bg);
+      font-size: 9px; font-weight: 700; color: #0e1014;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .chat-panel {
+      position: fixed; bottom: 90px; right: 28px; z-index: 100;
+      width: 360px; max-height: 520px;
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: var(--radius); display: flex; flex-direction: column;
+      box-shadow: 0 8px 40px rgba(0,0,0,.5);
+      transform: translateY(16px) scale(.97); opacity: 0;
+      pointer-events: none; transition: transform .22s, opacity .22s;
+    }
+    .chat-panel.open {
+      transform: translateY(0) scale(1); opacity: 1; pointer-events: all;
+    }
+    .chat-header {
+      padding: 14px 16px; border-bottom: 1px solid var(--border-soft);
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    }
+    .chat-header-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success); animation: pulse 1.4s infinite; flex-shrink: 0;
+    }
+    .chat-header-title { font-weight: 700; font-size: 14px; flex: 1; }
+    .chat-header-sub { font-size: 11px; color: var(--text-faint); }
+    .chat-close {
+      background: none; border: none; color: var(--text-faint);
+      cursor: pointer; font-size: 16px; padding: 2px 4px;
+      border-radius: 4px; transition: color .15s;
+    }
+    .chat-close:hover { color: var(--text); }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 14px 14px 8px;
+      display: flex; flex-direction: column; gap: 10px;
+      min-height: 0;
+    }
+    .chat-msg { display: flex; flex-direction: column; gap: 3px; }
+    .chat-msg.user { align-items: flex-end; }
+    .chat-msg.bot  { align-items: flex-start; }
+    .chat-bubble {
+      max-width: 88%; padding: 9px 13px; border-radius: 12px;
+      font-size: 13px; line-height: 1.5; word-break: break-word;
+    }
+    .chat-msg.user .chat-bubble {
+      background: var(--accent-soft); border: 1px solid var(--accent-dim);
+      color: var(--text); border-bottom-right-radius: 4px;
+    }
+    .chat-msg.bot .chat-bubble {
+      background: var(--panel-elev); border: 1px solid var(--border);
+      color: var(--text-dim); border-bottom-left-radius: 4px;
+    }
+    .chat-msg.bot .chat-bubble strong { color: var(--text); }
+    .chat-bubble.thinking { color: var(--text-faint); font-style: italic; }
+    .chat-bubble .dot-typing {
+      display: inline-flex; gap: 3px; align-items: center; height: 14px;
+    }
+    .chat-bubble .dot-typing span {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--text-faint); animation: blink 1.2s infinite;
+    }
+    .chat-bubble .dot-typing span:nth-child(2) { animation-delay: .2s; }
+    .chat-bubble .dot-typing span:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink {
+      0%,80%,100% { opacity: .25; } 40% { opacity: 1; }
+    }
+
+    .chat-suggestions {
+      padding: 0 14px 10px; display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .chat-suggestion {
+      background: var(--bg-soft); border: 1px solid var(--border-soft);
+      color: var(--text-dim); border-radius: 20px;
+      padding: 4px 10px; font-size: 12px; cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .chat-suggestion:hover { border-color: var(--accent-dim); color: var(--accent); }
+
+    .chat-input-row {
+      padding: 10px 12px; border-top: 1px solid var(--border-soft);
+      display: flex; gap: 8px; flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1; background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-size: 13px; padding: 8px 12px; outline: none;
+      font-family: inherit; resize: none;
+      transition: border-color .15s;
+    }
+    .chat-input:focus { border-color: var(--accent-dim); }
+    .chat-input::placeholder { color: var(--text-faint); }
+    .chat-send {
+      background: var(--accent); border: none; color: #0e1014;
+      border-radius: var(--radius-sm); width: 36px; height: 36px;
+      cursor: pointer; font-size: 15px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      align-self: flex-end; transition: opacity .15s;
+    }
+    .chat-send:hover { opacity: .85; }
+    .chat-send:disabled { opacity: .4; cursor: default; }
+
+    /* ── scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media (max-width: 720px) {
+      .sidebar { display: none; }
+      .main { padding: 24px 20px 60px; }
+      .btn-grid, .agent-grid { grid-template-columns: 1fr; }
+      .schedule-card { flex-direction: column; }
+      .status-row { grid-template-columns: 10px 1fr; }
+      .status-action, .status-header { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-title">Caytral Ops</div>
+      <div class="logo-sub">ops.cayesdesk.com</div>
+    </div>
+    <div class="nav-section-label">Getting started</div>
+    <ul class="nav-list">
+      <li><a href="#quickstart" class="nav-link"><span class="nav-icon">⚡</span> Quick Start</a></li>
+      <li><a href="#firsttask" class="nav-link"><span class="nav-icon">🎯</span> Your First Task</a></li>
+    </ul>
+    <div class="nav-section-label">Reference</div>
+    <ul class="nav-list">
+      <li><a href="#buttons" class="nav-link"><span class="nav-icon">🖱</span> Action Buttons</a></li>
+      <li><a href="#agents" class="nav-link"><span class="nav-icon">🤖</span> Your 7 Agents</a></li>
+      <li><a href="#status" class="nav-link"><span class="nav-icon">🔵</span> Status Indicators</a></li>
+      <li><a href="#workflows" class="nav-link"><span class="nav-icon">📋</span> Workflows</a></li>
+      <li><a href="#schedule" class="nav-link"><span class="nav-icon">⏰</span> Auto Schedule</a></li>
+      <li><a href="#troubleshooting" class="nav-link"><span class="nav-icon">🔧</span> Troubleshooting</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <a class="open-btn" href="https://ops.cayesdesk.com" target="_blank">Open Dashboard ↗</a>
+    </div>
+  </nav>
+
+  <!-- main -->
+  <main class="main">
+
+    <!-- hero -->
+    <div class="hero">
+      <div class="hero-badge">✦ Caytral Ops Guide</div>
+      <h1>Your AI Ops Team<br>Is Ready for Instructions.</h1>
+      <p>Learn exactly where the buttons are, which agent to pick for what job, and how to get real work done from the dashboard — start to finish.</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><span>7</span> agents</div>
+        <div class="hero-stat"><span>$350</span>/mo</div>
+        <div class="hero-stat"><span>Mon–Fri 8 AM EST</span> auto-run</div>
+      </div>
+    </div>
+
+    <!-- quick start -->
+    <section id="quickstart">
+      <div class="section-heading">
+        <span class="section-icon">⚡</span>
+        <h2>Quick Start</h2>
+      </div>
+      <p class="section-sub">Every agent lives in a row on the Agents page. The controls are on the right side of each row. Here's exactly what you're looking at:</p>
+
+      <p class="mock-label-top">This is one agent row — it looks like this on the dashboard:</p>
+      <div class="mock-row">
+        <div class="mock-agent-info">
+          <div class="mock-dot"></div>
+          <div>
+            <div class="mock-name">Orchestrator</div>
+            <div class="mock-meta">CEO · Opus 4.6</div>
+          </div>
+        </div>
+        <div class="mock-buttons">
+          <div class="mock-btn primary">+ Assign Task</div>
+          <div class="mock-btn">▶ Run now</div>
+          <div class="mock-btn">⏸</div>
+          <div class="mock-btn">···</div>
+        </div>
+      </div>
+      <p class="mock-callout">↑ <span>The colored dot</span> shows status. <span>Buttons on the right</span> are your controls. That's everything you need to operate an agent.</p>
+
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span><strong>The core loop:</strong> Pick an agent → Assign Task → Run now → check the Runs tab to see what it did. That's it. Everything else in this guide is just variations on that loop.</span>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- first task walkthrough -->
+    <section id="firsttask">
+      <div class="section-heading">
+        <span class="section-icon">🎯</span>
+        <h2>Your First Task — Step by Step</h2>
+      </div>
+      <p class="section-sub">Follow this once end-to-end and you'll understand the whole system. We'll send a research task to the Research agent.</p>
+
+      <div class="first-task">
+        <div class="first-task-header">
+          <span>Walkthrough</span>
+          <small>~2 minutes · no prior experience needed</small>
+        </div>
+        <div class="first-task-body">
+
+          <div class="ft-step">
+            <div class="ft-num">1</div>
+            <div class="ft-content">
+              <div class="ft-action">Go to ops.cayesdesk.com → click "Agents" in the nav</div>
+              <div class="ft-detail">You'll see a list of all 7 agents. Each row has a colored dot on the left and buttons on the right.</div>
+            </div>
+          </div>
+
+          <div class="ft-step">
+            <div class="ft-num">2</div>
+            <div class="ft-content">
+              <div class="ft-action">Find the Research agent row — click <code>+</code> (Assign Task)</div>
+              <div class="ft-detail">A dialog box opens. You need two things: a title (short label) and a description (the actual instructions).</div>
+              <div class="ft-example">
+                <strong>Title:</strong> "Competitor research"<br>
+                <strong>Description:</strong> "Find the top 5 AI phone answering services for medical clinics. List their pricing, key features, and any weaknesses compared to a small custom solution."
+              </div>
+            </div>
+          </div>
+
+          <div class="ft-step">
+            <div class="ft-num">3</div>
+            <div class="ft-content">
+              <div class="ft-action">Click <code>Create</code> — the task is now saved and queued</div>
+              <div class="ft-detail">The task won't run yet. It's just sitting in the queue waiting for the agent to pick it up.</div>
+            </div>
+          </div>
+
+          <div class="ft-step">
+            <div class="ft-num">4</div>
+            <div class="ft-content">
+              <div class="ft-action">Click <code>▶ Run now</code> on the Research agent row</div>
+              <div class="ft-detail">This kicks the agent off immediately. The dot will turn blue and start pulsing — that means it's running.</div>
+            </div>
+          </div>
+
+          <div class="ft-step">
+            <div class="ft-num">5</div>
+            <div class="ft-content">
+              <div class="ft-action">Click the agent name to open its detail page → go to the <code>Runs</code> tab</div>
+              <div class="ft-detail">You'll see the active run listed. Click it to watch the live transcript — you can literally read what the AI is doing and thinking in real time.</div>
+            </div>
+          </div>
+
+          <div class="ft-step">
+            <div class="ft-num">6</div>
+            <div class="ft-content">
+              <div class="ft-action">Wait for it to finish — the dot turns green when done</div>
+              <div class="ft-detail">The completed run will show the full output: research report, sources, token usage, everything.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="tip" style="margin-top:16px;">
+        <span class="tip-icon">💡</span>
+        <span><strong>Be specific in the description.</strong> The more context you give — who you are, what you already know, what format you want back — the better the output. Vague tasks get vague results.</span>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- action buttons -->
+    <section id="buttons">
+      <div class="section-heading">
+        <span class="section-icon">🖱</span>
+        <h2>Action Buttons</h2>
+      </div>
+      <p class="section-sub">Every agent row has these controls. Here's what each one does and when you'd actually use it.</p>
+
+      <div class="btn-grid">
+        <div class="btn-card">
+          <div class="btn-card-header">
+            <div class="btn-label">Assign Task</div>
+            <div class="btn-symbol">+</div>
+          </div>
+          <div class="btn-desc">Opens a dialog to create a task and assign it to this agent. The task queues up and processes on the next run — or immediately if you also click Run now.</div>
+          <div class="btn-when"><strong>Use when:</strong> You have a job for a specific agent and want to give clear written instructions</div>
+        </div>
+
+        <div class="btn-card">
+          <div class="btn-card-header">
+            <div class="btn-label">Run now</div>
+            <div class="btn-symbol">▶</div>
+          </div>
+          <div class="btn-desc">Triggers the agent immediately — skips the 8 AM schedule. The agent picks up any queued tasks and works through them right now.</div>
+          <div class="btn-when"><strong>Use when:</strong> You don't want to wait until 8 AM, or you just assigned a task and want it done now</div>
+        </div>
+
+        <div class="btn-card">
+          <div class="btn-card-header">
+            <div class="btn-label">Pause</div>
+            <div class="btn-symbol">⏸</div>
+          </div>
+          <div class="btn-desc">Stops the agent from running on schedule. It won't pick up new tasks until you hit Resume. The agent dot turns yellow.</div>
+          <div class="btn-when"><strong>Use when:</strong> An agent is doing something wrong and you need to stop it, or you're testing and don't want it to auto-run</div>
+        </div>
+
+        <div class="btn-card">
+          <div class="btn-card-header">
+            <div class="btn-label">Clear error</div>
+            <div class="btn-symbol">✓</div>
+          </div>
+          <div class="btn-desc">Resets the agent from an error state back to idle. This button only appears when the agent is in error. It does NOT fix the underlying issue — you have to do that first.</div>
+          <div class="btn-when"><strong>Use when:</strong> An agent hit an error (red dot), you've read the logs and fixed the root cause, and now you want it back online</div>
+        </div>
+
+        <div class="btn-card">
+          <div class="btn-card-header">
+            <div class="btn-label">More</div>
+            <div class="btn-symbol">···</div>
+          </div>
+          <div class="btn-desc">Advanced options: Duplicate Agent, Copy Agent ID, Reset Sessions, Terminate. Most of these are for maintenance, not daily use.</div>
+          <div class="btn-when"><strong>Use when:</strong> You want to clone an agent's config, or need to hard-reset a stuck/broken agent</div>
+        </div>
+      </div>
+
+      <div class="warn">
+        <span class="tip-icon">⚠️</span>
+        <span><strong>Terminate is permanent.</strong> Under the ··· menu, Terminate destroys the agent and its sessions. Don't click it unless you mean it.</span>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- agents -->
+    <section id="agents">
+      <div class="section-heading">
+        <span class="section-icon">🤖</span>
+        <h2>Your 7 Agents</h2>
+      </div>
+      <p class="section-sub">Each agent has a specialty and a model powering it. Pick the right one for the job — sending a writing task to the Engineer or a coding task to Comms wastes time.</p>
+
+      <div class="agent-grid">
+
+        <div class="agent-card">
+          <div class="agent-card-top">
+            <div class="agent-name">Orchestrator</div>
+            <div class="agent-role role-ceo">CEO</div>
+          </div>
+          <div class="agent-model">Opus 4.6 — most capable model</div>
+          <div class="agent-desc">The manager agent. Breaks down complex projects, delegates subtasks to the right agents, and coordinates multi-step work across the team.</div>
+          <div class="agent-best"><strong>Best for:</strong> Complex multi-step projects, cross-agent work</div>
+          <div class="agent-example"><strong>Example ask:</strong> "Plan a 3-month outreach campaign for CayesDesk — research competitors, draft email sequences, and set up a content calendar."</div>
+        </div>
+
+        <div class="agent-card">
+          <div class="agent-card-top">
+            <div class="agent-name">Research</div>
+            <div class="agent-role role-res">Researcher</div>
+          </div>
+          <div class="agent-model">Sonnet 4.6</div>
+          <div class="agent-desc">Digs into topics, gathers data, and writes structured research reports. Pulls from the web and synthesizes findings.</div>
+          <div class="agent-best"><strong>Best for:</strong> Market research, competitive analysis, technical investigation</div>
+          <div class="agent-example"><strong>Example ask:</strong> "Find the top 10 medical clinics in Broward County that still use manual phone scheduling. Include their contact info and estimated patient volume."</div>
+        </div>
+
+        <div class="agent-card">
+          <div class="agent-card-top">
+            <div class="agent-name">Engineer</div>
+            <div class="agent-role role-eng">Engineer</div>
+          </div>
+          <div class="agent-model">Sonnet 4.6</div>
+          <div class="agent-desc">Writes, reviews, and debugs code. Implements features, fixes bugs, and handles technical infrastructure tasks.</div>
+          <div class="agent-best"><strong>Best for:</strong> Code changes, bug fixes, feature implementation</div>
+          <div class="agent-example"><strong>Example ask:</strong> "Add a webhook endpoint to the CayesDesk backend that receives Twilio call logs and saves them to the database."</div>
+        </div>
+
+        <div class="agent-card">
+          <div class="agent-card-top">
+            <div class="agent-name">Comms</div>
+            <div class="agent-role role-comms">General</div>
+          </div>
+          <div class="agent-model">Azure OpenAI</div>
+          <div class="agent-desc">Writes all external-facing communication: emails, client messages, follow-ups, proposals, and customer responses.</div>
+          <div class="agent-best"><strong>Best for:</strong> Email drafts, customer responses, external comms</div>
+          <div class="agent-example"><strong>Example ask:</strong> "Draft a cold outreach email to a dental clinic front desk explaining what CayesDesk does and why they should book a demo."</div>
+        </div>
+
+        <div class="agent-card">
+          <div class="agent-card-top">
+            <div class="agent-name">Analyst</div>
+            <div class="agent-role role-cfo">CFO</div>
+          </div>
+          <div class="agent-model">Opus 4.6 — most capable model</div>
+          <div class="agent-desc">Reviews numbers, analyzes business data, and produces clear reports. Good at financial modeling, metric summaries, and data-driven decisions.</div>
+          <div class="agent-best"><strong>Best for:</strong> Financial analysis, metrics review, data-driven decisions</div>
+          <div class="agent-example"><strong>Example ask:</strong> "Based on 7 agents at $350/mo, project the minimum number of CayesDesk clients needed to break even at $299/mo per client."</div>
+        </div>
+
+        <div class="agent-card">
+          <div class="agent-card-top">
+            <div class="agent-name">Content</div>
+            <div class="agent-role role-cmo">CMO</div>
+          </div>
+          <div class="agent-model">Sonnet 4.6</div>
+          <div class="agent-desc">Creates marketing copy, blog posts, landing page content, and social media posts. Focused on persuasion and brand voice.</div>
+          <div class="agent-best"><strong>Best for:</strong> Blog posts, marketing copy, landing pages</div>
+          <div class="agent-example"><strong>Example ask:</strong> "Write a landing page headline and 3 short benefit bullets for CayesDesk — targeting small medical clinic owners who are overwhelmed with phone calls."</div>
+        </div>
+
+        <div class="agent-card">
+          <div class="agent-card-top">
+            <div class="agent-name">QA</div>
+            <div class="agent-role role-qa">QA</div>
+          </div>
+          <div class="agent-model">Opus 4.6 — most capable model</div>
+          <div class="agent-desc">Reviews work produced by other agents — catches errors, checks logic, verifies quality before anything goes out the door.</div>
+          <div class="agent-best"><strong>Best for:</strong> Code review, testing, quality checks</div>
+          <div class="agent-example"><strong>Example ask:</strong> "Review this email draft from the Comms agent. Check for tone, clarity, any factual claims that seem off, and suggest improvements."</div>
+        </div>
+
+      </div>
+
+      <div class="tip" style="margin-top:16px;">
+        <span class="tip-icon">💡</span>
+        <span><strong>Opus vs Sonnet:</strong> Opus 4.6 is the smartest but slower and costs more tokens. Sonnet 4.6 is fast and efficient. The platform already assigned the right model to each agent — don't stress about this.</span>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- status indicators -->
+    <section id="status">
+      <div class="section-heading">
+        <span class="section-icon">🔵</span>
+        <h2>Status Indicators</h2>
+      </div>
+      <p class="section-sub">The colored dot on each agent row tells you what's happening — and what you should do about it.</p>
+
+      <div class="status-header">
+        <span></span>
+        <span>Status</span>
+        <span>What it means</span>
+        <span>Your move</span>
+      </div>
+      <div class="status-list">
+        <div class="status-row">
+          <div class="status-dot dot-active"></div>
+          <div class="status-name">Active / Idle</div>
+          <div class="status-desc">Healthy and ready. No tasks running right now.</div>
+          <div class="status-action"><strong>Nothing needed.</strong> Assign a task anytime.</div>
+        </div>
+        <div class="status-row">
+          <div class="status-dot dot-running"></div>
+          <div class="status-name">Running</div>
+          <div class="status-desc">Actively working on a task right now.</div>
+          <div class="status-action"><strong>Just watch.</strong> Open the Runs tab to see live output.</div>
+        </div>
+        <div class="status-row">
+          <div class="status-dot dot-paused"></div>
+          <div class="status-name">Paused</div>
+          <div class="status-desc">Paused manually. Won't run on schedule or pick up tasks.</div>
+          <div class="status-action"><strong>Click Resume</strong> when you're ready to re-activate it.</div>
+        </div>
+        <div class="status-row">
+          <div class="status-dot dot-error"></div>
+          <div class="status-name">Error</div>
+          <div class="status-desc">Something went wrong on the last run.</div>
+          <div class="status-action"><strong>Read the logs first,</strong> fix the cause, then click Clear error.</div>
+        </div>
+        <div class="status-row">
+          <div class="status-dot dot-queued"></div>
+          <div class="status-name">Queued</div>
+          <div class="status-desc">Task is assigned but agent hasn't started yet.</div>
+          <div class="status-action"><strong>Click Run now</strong> to skip the wait, or let it run at 8 AM.</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- workflows -->
+    <section id="workflows">
+      <div class="section-heading">
+        <span class="section-icon">📋</span>
+        <h2>Common Workflows</h2>
+      </div>
+      <p class="section-sub">Step-by-step playbooks for the situations you'll hit most often.</p>
+
+      <div class="workflow-group">
+
+        <div class="workflow-card">
+          <div class="workflow-header">
+            <span class="workflow-icon">📨</span>
+            <h3>Send a task to an agent</h3>
+          </div>
+          <div class="workflow-steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-text">
+                Open <code>ops.cayesdesk.com</code> → Agents page
+                <div class="step-note">If you're already on the dashboard, look for "Agents" in the left nav</div>
+              </div>
+            </div>
+            <div class="step"><div class="step-num">2</div><div class="step-text">Identify which agent fits your task — use the agent cards above if unsure</div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-text">Click <code>+</code> (Assign Task) on that agent's row</div></div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-text">
+                Fill in a short title and a detailed description of what you want
+                <div class="step-note">The description is your actual instructions — be specific, include context, say what format you want back</div>
+              </div>
+            </div>
+            <div class="step"><div class="step-num">5</div><div class="step-text">Click <code>Create</code> — the task saves to the queue</div></div>
+            <div class="step"><div class="step-num">6</div><div class="step-text">Click <code>▶ Run now</code> to process immediately, or wait for the 8 AM EST auto-run</div></div>
+          </div>
+        </div>
+
+        <div class="workflow-card">
+          <div class="workflow-header">
+            <span class="workflow-icon">👁</span>
+            <h3>Monitor an active run</h3>
+          </div>
+          <div class="workflow-steps">
+            <div class="step"><div class="step-num">1</div><div class="step-text">Look for agents with a blue pulsing dot — those are running right now</div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-text">Click the agent name to open its detail page</div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-text">Go to the <code>Runs</code> tab</div></div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-text">
+                Click the active run to see the live transcript and output
+                <div class="step-note">You'll see tool calls, reasoning, intermediate steps, and final output — all in real time</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="workflow-card">
+          <div class="workflow-header">
+            <span class="workflow-icon">🚨</span>
+            <h3>Recover from an error</h3>
+          </div>
+          <div class="workflow-steps">
+            <div class="step"><div class="step-num">1</div><div class="step-text">Filter the Agents list by the <code>Error</code> tab — or look for red dots</div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-text">Click the agent → <code>Runs</code> tab → click the failed run</div></div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-text">
+                Read the error message carefully
+                <div class="step-note">Common causes: expired API key, model rate limit hit, network timeout, or a bad task description that confused the agent</div>
+              </div>
+            </div>
+            <div class="step"><div class="step-num">4</div><div class="step-text">Fix the underlying issue (rotate the key, wait for rate limit to reset, rewrite the task)</div></div>
+            <div class="step"><div class="step-num">5</div><div class="step-text">Click <code>Clear error</code> — agent resets to idle and is ready again</div></div>
+          </div>
+        </div>
+
+        <div class="workflow-card">
+          <div class="workflow-header">
+            <span class="workflow-icon">🔁</span>
+            <h3>Set up a recurring routine</h3>
+          </div>
+          <div class="workflow-steps">
+            <div class="step"><div class="step-num">1</div><div class="step-text">Go to the <code>Routines</code> page in the nav</div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-text">Click <code>New Routine</code></div></div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-text">
+                Set the title, description (what to do each time), which agent to assign it to, and the schedule
+                <div class="step-note">Example: assign the Analyst to run a weekly revenue summary every Monday at 8 AM</div>
+              </div>
+            </div>
+            <div class="step"><div class="step-num">4</div><div class="step-text">Save — it runs automatically from now on, no manual trigger needed</div></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- schedule -->
+    <section id="schedule">
+      <div class="section-heading">
+        <span class="section-icon">⏰</span>
+        <h2>Automated Schedule</h2>
+      </div>
+      <p class="section-sub">Your agents work while you sleep — here's what happens automatically.</p>
+
+      <div class="schedule-card">
+        <div class="schedule-time">
+          <div class="time">8:00 AM</div>
+          <div class="days">Monday – Friday · EST</div>
+        </div>
+        <div class="schedule-desc">
+          Every weekday morning, <strong>each agent wakes up, checks its task queue, and processes everything queued up</strong> since the last run. You don't have to do anything — just assign tasks and they'll get handled.
+          <div class="schedule-tips">
+            <div class="schedule-tip">Assign tasks the night before to have results waiting for you in the morning</div>
+            <div class="schedule-tip">Use <strong>Run now</strong> any time you don't want to wait</div>
+            <div class="schedule-tip">Weekends and holidays: agents don't run — use Run now if you need something done</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- troubleshooting -->
+    <section id="troubleshooting">
+      <div class="section-heading">
+        <span class="section-icon">🔧</span>
+        <h2>Troubleshooting</h2>
+      </div>
+      <p class="section-sub">Something not working? Click the question that matches your situation.</p>
+
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <button class="faq-q">I don't see any action buttons on the agent rows <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">You must be on the Agents page — check that the URL contains <code>/agents</code>. The buttons are on the right side of each row. On smaller screens or narrow windows, only the icons show (no labels). Try widening your browser window.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">An agent has a red dot and is stuck in Error state <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">Open the agent → Runs tab → click the failed run to read the full error. <strong>Do not click Clear error until you've read the logs</strong> — clearing it without fixing the cause will just cause it to error again. Common root causes: API key expired or missing, model rate limit hit (wait 1–5 minutes), or a task description the agent couldn't parse. Fix the cause, then click Clear error.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">Agent isn't running at 8 AM like it's supposed to <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">Check three things in order: (1) Is the agent paused? Look for a yellow badge — if paused, click Resume. (2) Is the budget exhausted? Go to the Budget tab on the agent — if it's at zero, the agent won't run. (3) Does it have any tasks queued? Agents only run when there's something to do. You can always click Run now to force an immediate check.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">I assigned a task but nothing happened — it just sits there <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">Tasks queue until the next run — they don't auto-start. Click <strong>Run now</strong> on that agent's row to process it immediately. Or wait for the 8 AM EST weekday heartbeat. To confirm the task saved, go to the Tasks page and check it's listed there.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">How do I actually see what an agent produced / did? <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">Click the agent name to open its detail page → go to the <strong>Runs</strong> tab → click any completed run. You'll see the full conversation transcript, every tool call the agent made, the final output, and the token count for that run. This is also how you verify quality and catch mistakes.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">The output quality is bad — the agent isn't doing what I want <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">This almost always comes down to task description quality. Be more specific: include what you already know, the format you want back (bullet list, report, email, etc.), who the audience is, and any constraints. Also make sure you're using the right agent for the job — sending a writing task to Engineer will get mediocre results compared to Comms or Content.</div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // ── accordion ──
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => btn.parentElement.classList.toggle('open'));
+  });
+
+  // ── nav highlight ──
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+
+  // ── chat assistant ──
+  const chatHistory = [];
+  const messagesEl = document.getElementById('chatMessages');
+  const inputEl = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('chatSend');
+  const suggestionsEl = document.getElementById('chatSuggestions');
+
+  function appendMsg(role, text, isTyping = false) {
+    const wrap = document.createElement('div');
+    wrap.className = `chat-msg ${role}`;
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble' + (isTyping ? ' thinking' : '');
+    if (isTyping) {
+      bubble.innerHTML = '<span class="dot-typing"><span></span><span></span><span></span></span>';
+    } else {
+      bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    }
+    wrap.appendChild(bubble);
+    messagesEl.appendChild(wrap);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return wrap;
+  }
+
+  async function sendMessage(text) {
+    if (!text.trim()) return;
+    suggestionsEl.style.display = 'none';
+    appendMsg('user', text);
+    chatHistory.push({ role: 'user', parts: [{ text }] });
+    inputEl.value = '';
+    sendBtn.disabled = true;
+
+    const thinkingEl = appendMsg('bot', '', true);
+
+    try {
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: chatHistory })
+      });
+      const data = await res.json();
+      const reply = data?.reply || 'Sorry, I couldn\'t get a response. Try again.';
+      thinkingEl.remove();
+      appendMsg('bot', reply);
+      chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+    } catch (e) {
+      thinkingEl.remove();
+      appendMsg('bot', 'Connection error — make sure you\'re online and try again.');
+    }
+
+    sendBtn.disabled = false;
+    inputEl.focus();
+  }
+
+  sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(inputEl.value); }
+  });
+
+  document.querySelectorAll('.chat-suggestion').forEach(btn => {
+    btn.addEventListener('click', () => sendMessage(btn.textContent));
+  });
+
+  const fab = document.getElementById('chatFab');
+  const panel = document.getElementById('chatPanel');
+  fab.addEventListener('click', () => {
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) inputEl.focus();
+  });
+  document.getElementById('chatCloseBtn').addEventListener('click', () => panel.classList.remove('open'));
+</script>
+
+<!-- chat fab -->
+<button class="chat-fab" id="chatFab" title="Ask a question">
+  💬
+  <span class="fab-badge">AI</span>
+</button>
+
+<!-- chat panel -->
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-header-dot"></div>
+    <div>
+      <div class="chat-header-title">Ops Assistant</div>
+      <div class="chat-header-sub">Ask me anything about Caytral Ops</div>
+    </div>
+    <button class="chat-close" id="chatCloseBtn">✕</button>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">
+      <div class="chat-bubble">Hey Mahayla 👋 I know everything about Caytral Ops. Ask me which agent to use, how a button works, or what to do if something goes wrong.</div>
+    </div>
+  </div>
+
+  <div class="chat-suggestions" id="chatSuggestions">
+    <button class="chat-suggestion">Which agent do I use for emails?</button>
+    <button class="chat-suggestion">How do I fix an error?</button>
+    <button class="chat-suggestion">What happens at 8AM?</button>
+    <button class="chat-suggestion">What does Run now do?</button>
+  </div>
+
+  <div class="chat-input-row">
+    <textarea class="chat-input" id="chatInput" placeholder="Ask a question…" rows="1"></textarea>
+    <button class="chat-send" id="chatSend">↑</button>
+  </div>
+</div>
+</body>
+</html>
