@@ -1261,6 +1261,103 @@
       answer: 'Here are real tasks you could run today:\n\n**Research agent:**\n→ "Find 20 medical clinics in Miami-Dade that take walk-ins and have no online booking"\n\n**Comms agent:**\n→ "Write 3 variations of a cold email for CayesDesk targeting pediatric clinic managers"\n\n**Analyst agent:**\n→ "Break down our monthly costs and tell me what our margin looks like at 5, 10, and 20 clients"\n\n**Content agent:**\n→ "Write a week of LinkedIn posts about replacing receptionist phone work with AI"\n\n**Orchestrator:**\n→ "Build a full go-to-market plan for CayesDesk in South Florida — research, messaging, outreach"\n\nWant me to help you write a task description for any of these?',
       followUps: ['assign_task','agent_picker']
     },
+    // ── EXPANDED KNOWLEDGE ──
+    {
+      id: 'dashboard_pages',
+      tags: ['page','pages','nav','navigation','section','tab','where','find','tasks page','routines page','runs page','budget tab','agents page','dashboard','layout','menu'],
+      answer: 'The dashboard has these main pages/sections:\n\n**Agents** (/agents) — your main control panel. All 7 agents listed with their status dots and action buttons.\n\n**Tasks** — see every task that\'s been assigned across all agents, their status (queued, running, done).\n\n**Runs** — full history of every agent run, with transcripts and output.\n\n**Routines** — set up recurring tasks that run on a schedule automatically.\n\n**Budget** (tab on each agent) — shows how many tokens the agent has used and what\'s remaining.',
+      followUps: ['assign_task','routine','output_check']
+    },
+    {
+      id: 'budget',
+      tags: ['budget','token','tokens','limit','exhausted','ran out','credit','usage','cost','spending','allowance','quota'],
+      answer: '**Budget** controls how much each agent can spend on AI processing (measured in tokens).\n\nIf an agent\'s budget is exhausted it will not run — even at 8AM or when you click Run now.\n\n**To check:** Click an agent → go to the **Budget tab**. You\'ll see usage and what\'s remaining.\n\n**If it\'s at zero:** You\'ll need to top up or reset the budget from that tab before the agent will run again.',
+      followUps: ['not_on_schedule','run_now']
+    },
+    {
+      id: 'multi_agent',
+      tags: ['multiple','agents','together','chain','combine','workflow','sequence','handoff','pipeline','coordinate','team','all agents'],
+      answer: '**The Orchestrator is designed for exactly this.** When you have a project that needs multiple agents, assign it to Orchestrator and describe the full goal — it figures out which agents to involve and in what order.\n\n**Example multi-agent workflow:**\n→ Orchestrator breaks down the project\n→ Research gathers the data\n→ Comms drafts the outreach\n→ QA reviews the drafts\n→ Content creates supporting marketing material\n\n**Or you can chain them manually:**\n1. Assign to Research first, get the report\n2. Copy the output into a Comms task\n3. Send Comms output to QA for review\n\nManual chaining gives you more control. Orchestrator is faster for big goals.',
+      followUps: ['orchestrator','assign_task','qa_agent']
+    },
+    {
+      id: 'task_writing',
+      tags: ['write','writing','task','description','prompt','instructions','how','better','good','format','tips','structure','context','specific','detail'],
+      answer: '**How to write a great task description:**\n\nThe agents only know what you tell them. The description is everything.\n\n**Structure to follow:**\n1. **Who you are / context** — "We\'re CayesDesk, an AI phone agent product for South FL medical clinics"\n2. **What you want done** — be explicit about the action\n3. **Any constraints** — tone, length, audience, format\n4. **What you want back** — "Return a bullet list", "Write this as an email", "Give me a table"\n\n**Example (bad):** "Write an email"\n**Example (good):** "Write a cold outreach email to a dental clinic front desk manager. We\'re CayesDesk — we replace manual phone scheduling with an AI agent. Keep it under 150 words, casual and warm tone, end with a soft CTA to book a 15-min call. Don\'t mention pricing."\n\nThe more specific = the better the output.',
+      followUps: ['bad_output','assign_task','agent_picker']
+    },
+    {
+      id: 'cayesdesk_usecases',
+      tags: ['cayesdesk','use','clinic','medical','doctor','dental','patient','phone','scheduling','appointment','florida','south florida','broward','miami','receptionist','front desk'],
+      answer: '**CayesDesk** is an AI phone agent for medical clinics in South Florida. It replaces the front desk phone — patients call, the AI answers, books appointments, and handles common questions.\n\n**Here\'s how the Ops agents support the business:**\n\n→ **Research** — find clinics still doing manual scheduling, build prospect lists\n→ **Comms** — cold outreach to clinic owners and front desk managers\n→ **Content** — marketing copy, LinkedIn posts, landing pages\n→ **Analyst** — track revenue, model pricing scenarios, analyze metrics\n→ **Engineer** — build and maintain the AI phone system itself\n→ **QA** — review everything before it goes to a client\n→ **Orchestrator** — run full campaigns end-to-end\n\nAsk me what you\'re trying to do and I\'ll tell you exactly which agent to use.',
+      followUps: ['agent_picker','assign_task','examples']
+    },
+    {
+      id: 'daily_workflow',
+      tags: ['daily','day','morning','workflow','routine','habit','process','each day','every day','typical','start','begin'],
+      answer: '**Recommended daily workflow with Caytral Ops:**\n\n**The night before:**\n→ Assign tomorrow\'s tasks to the right agents\n→ They\'ll be processed automatically at 8AM EST\n\n**Morning (after 8AM):**\n→ Open the dashboard\n→ Check each agent\'s Runs tab for output\n→ Review and act on the results\n→ Assign any follow-up tasks\n\n**On-demand during the day:**\n→ Use Run now anytime you need something fast\n→ Send urgent tasks to Comms or Research and hit Run now immediately\n\n**Weekly:**\n→ Set up a Routine for recurring work (weekly reports, check-ins, content batches)',
+      followUps: ['routine','assign_task','schedule']
+    },
+    {
+      id: 'weekly_workflow',
+      tags: ['weekly','week','monday','each week','every week','recurring','regular','plan','planning'],
+      answer: '**Recommended weekly rhythm:**\n\n**Monday** — Analyst runs a revenue/metrics summary (set this as a Routine)\n**Tuesday/Wednesday** — Research + Comms do outreach prep\n**Thursday** — Content batches social posts and blog content for next week\n**Friday** — QA reviews everything from the week before it goes out\n\n**Set all of these up as Routines** so they run automatically every week without you having to assign them manually.',
+      followUps: ['routine','analyst','content']
+    },
+    {
+      id: 'agent_combos',
+      tags: ['combine','combo','pair','together','sequence','chain','after','then','next','workflow','pipeline','both'],
+      answer: '**Best agent combinations for common goals:**\n\n📧 **Outreach campaign:**\nResearch → finds prospects\nComms → writes the emails\nQA → reviews before sending\n\n📊 **Weekly business review:**\nAnalyst → pulls and summarizes metrics\nOrchestrator → turns it into action items\n\n💻 **Ship a feature:**\nEngineer → builds it\nQA → reviews the code\n\n📣 **Content drop:**\nResearch → finds trending topics\nContent → writes the posts/articles\nQA → proofs everything\n\n🏥 **New clinic prospect:**\nResearch → background on the clinic\nComms → personalized outreach email\nQA → final review\n\nWant a step-by-step for any of these?',
+      followUps: ['assign_task','orchestrator','multi_agent']
+    },
+    {
+      id: 'outreach_workflow',
+      tags: ['outreach','prospect','lead','leads','cold','pipeline','sales','sell','client','close','acquire','find clinics','target'],
+      answer: '**Full outreach workflow using Caytral Ops:**\n\n**Step 1 — Research agent:**\n"Find 20 medical clinics in [city] that still use manual phone scheduling. Include: clinic name, specialty, address, phone number, estimated size, and any info about their current booking process."\n\n**Step 2 — Comms agent:**\n"Using this clinic list, write a personalized cold email for each one. Reference their specialty and location. Pitch CayesDesk as a way to eliminate phone scheduling chaos. Keep it under 150 words, warm tone, soft CTA to book a 15-min call."\n\n**Step 3 — QA agent:**\n"Review these outreach emails. Check tone, personalization, accuracy, and flag anything that might turn a clinic owner off."\n\nRun all three manually with Run now, or assign them as a sequence the night before.',
+      followUps: ['research','comms','qa_agent']
+    },
+    {
+      id: 'task_examples_detailed',
+      tags: ['task','example','what','ask','give','prompt','sample','type','kind','request'],
+      answer: '**Real tasks to run right now — copy and paste ready:**\n\n**Research:**\n→ "Find every urgent care clinic in Broward County. List name, address, phone, and whether they have online booking. Flag any that seem to only take calls."\n\n**Comms:**\n→ "Write 5 subject line variations for a cold email to a medical clinic front desk. The goal is to get them to open it. Make them curiosity-driven, not salesy."\n\n**Analyst:**\n→ "If we charge $299/mo and have $350/mo in agent costs plus $200/mo in other overhead, what\'s our break-even client count and margin at 5, 10, 20, and 50 clients?"\n\n**Content:**\n→ "Write 5 LinkedIn posts for this week. Topic: how medical clinics are losing patients because of phone tag. Conversational tone, end each with a question to drive comments."\n\n**Engineer:**\n→ "Build a one-page HTML form that captures clinic name, contact name, phone, and email. On submit, show a \'We\'ll be in touch\' confirmation. Style it clean and modern."\n\n**QA:**\n→ "Here is a cold email draft: [paste email]. Review it for tone, clarity, any red flags, and suggest 3 specific improvements."',
+      followUps: ['assign_task','agent_picker','task_writing']
+    },
+    {
+      id: 'onboarding',
+      tags: ['new','start','onboard','onboarding','first time','getting started','just','beginning','where','setup','set up','begin','orientation'],
+      answer: '**New to Caytral Ops? Start here:**\n\n**Step 1** — Go to ops.cayesdesk.com → Agents page\n**Step 2** — Look at your 7 agents and their status dots (all should be green)\n**Step 3** — Pick ONE agent and assign your first task — start simple\n**Step 4** — Click ▶ Run now to process it immediately\n**Step 5** — Click the agent name → Runs tab → read what it did\n**Step 6** — Once you\'re comfortable, set up Routines for recurring work\n\n**Easiest first task:** Send this to Research →\n"Find the top 5 competitors to CayesDesk in the AI medical receptionist space. List their pricing, features, and biggest weaknesses."\n\nYou\'ll have results in a few minutes.',
+      followUps: ['assign_task','run_now','output_check']
+    },
+    {
+      id: 'tips_tricks',
+      tags: ['tip','tips','trick','tricks','best practice','advice','optimize','hack','shortcut','smarter','efficient','pro'],
+      answer: '**Pro tips for getting the most out of Caytral Ops:**\n\n→ **Assign the night before** — tasks process at 8AM, so queue them up before you go to bed and wake up to results\n\n→ **QA everything before it goes out** — run any Comms or Content output through QA before sending to a real client\n\n→ **Use Orchestrator for big goals, not small tasks** — it\'s most valuable when the work spans multiple agents. Single-step tasks are faster to assign directly.\n\n→ **Copy good outputs into your next task** — paste a Research result into a Comms task as context. Agents work best when they have real data to work with.\n\n→ **Set up Routines for anything you do weekly** — weekly metrics, weekly content, weekly outreach review. Set it once, runs forever.\n\n→ **Run now is free** — don\'t wait for 8AM if you need something done. Just click it.',
+      followUps: ['routine','multi_agent','task_writing']
+    },
+    {
+      id: 'what_orchestrator_does',
+      tags: ['orchestrator','what','does','how','work','delegate','breakdown','decompose','manage','autonomous'],
+      answer: '**Here\'s exactly how Orchestrator works:**\n\nYou give it a big goal. It:\n1. Breaks it down into subtasks\n2. Decides which agents are needed\n3. Assigns work to each agent in the right order\n4. Collects the outputs\n5. Synthesizes everything into a final deliverable\n\n**You only have to write one task.** The Orchestrator figures out the rest.\n\n**When to use it:**\n→ The goal needs more than one type of work (research + writing + analysis)\n→ You\'re not sure which agents to involve\n→ You want one final polished output without managing each step yourself\n\n**When NOT to use it:**\n→ Simple single-step tasks — just assign directly to the right agent, it\'s faster',
+      followUps: ['assign_task','multi_agent','agent_combos']
+    },
+    {
+      id: 'runs_tab',
+      tags: ['runs','tab','transcript','log','history','what happened','output','result','token','usage','read','open'],
+      answer: '**The Runs tab** is where you see everything an agent did.\n\n**To open it:**\n1. Click the agent name on the Agents page\n2. Click **Runs** tab\n3. Click any run to expand it\n\n**What you\'ll see inside a run:**\n→ The full conversation — every message between you, the agent, and its tools\n→ Tool calls — what the agent searched, wrote, or executed\n→ Final output — the actual deliverable\n→ Token count — how much budget it used\n→ Duration — how long it took\n\nThe Runs tab is also how you debug errors — a failed run will show exactly where it broke and why.',
+      followUps: ['output_check','error_troubleshoot','budget']
+    },
+    {
+      id: 'frequency',
+      tags: ['often','frequently','how many','times','day','limit','multiple','runs','again','twice','rerun','re-run'],
+      answer: 'You can run agents as many times as you want — there\'s no per-run limit beyond your budget.\n\n→ **Auto-run:** Once per weekday at 8AM EST\n→ **Manual:** Unlimited — click **Run now** as many times as you need\n→ **Budget** is the only thing that limits runs — once it\'s exhausted the agent stops\n\nIf you need an agent to run multiple times per day, just click Run now each time after assigning a new task.',
+      followUps: ['budget','run_now','routine']
+    },
+    {
+      id: 'comparing_agents',
+      tags: ['difference','between','vs','versus','compare','similar','overlap','research vs','comms vs','content vs','engineer vs'],
+      answer: '**Common "which one?" questions:**\n\n**Research vs Analyst:**\nResearch = finds and gathers information from the web\nAnalyst = makes sense of numbers and data you already have\n\n**Comms vs Content:**\nComms = external communication (emails to real people)\nContent = marketing material (posts, copy, landing pages)\n\n**Engineer vs Orchestrator:**\nEngineer = writes and fixes code directly\nOrchestrator = manages other agents, won\'t write code itself\n\n**QA vs Analyst:**\nQA = reviews quality of any output (writing, code, logic)\nAnalyst = reviews and interprets financial/metric data\n\nStill unsure? Tell me what you\'re trying to do and I\'ll pick the right one.',
+      followUps: ['agent_picker','assign_task']
+    },
     {
       id: 'live_demo',
       tags: ['demo','interactive','live','simulate','simulation','showcase','prospect','sales','show','client','presentation','call','phone','demo page','build demo','make demo','create demo','cayesdesk demo','product demo'],
@@ -1328,7 +1425,24 @@
         output_check: 'How do I see what an agent did?', error_troubleshoot: 'Help me fix an error',
         bad_output: 'How do I improve output quality?', nothing_happened: 'My task isn\'t running',
         not_on_schedule: 'Agent didn\'t run on schedule', buttons_missing: 'I can\'t see the buttons',
-        models: 'Which model does each agent use?', examples: 'Give me task ideas'
+        models: 'Which model does each agent use?', examples: 'Give me task ideas',
+        dashboard_pages: 'What pages are in the dashboard?',
+        budget: 'How does budget work?',
+        multi_agent: 'How do I use multiple agents?',
+        task_writing: 'How do I write a good task?',
+        cayesdesk_usecases: 'How does this help CayesDesk?',
+        daily_workflow: 'What\'s the daily workflow?',
+        weekly_workflow: 'What\'s the weekly workflow?',
+        agent_combos: 'Best agent combinations?',
+        outreach_workflow: 'How do I run outreach?',
+        task_examples_detailed: 'Give me copy-paste task examples',
+        onboarding: 'How do I get started?',
+        tips_tricks: 'Give me pro tips',
+        what_orchestrator_does: 'Exactly how does Orchestrator work?',
+        runs_tab: 'What\'s in the Runs tab?',
+        frequency: 'How often can I run agents?',
+        comparing_agents: 'What\'s the difference between agents?',
+        live_demo: 'How do I build a live demo?'
       };
       return labels[id] || null;
     }).filter(Boolean);
@@ -1354,6 +1468,30 @@
     if (/\b(demo|interactive|live demo|simulate|simulation|showcase|sales demo|product demo)\b/.test(q)) {
       convCtx.lastId = 'live_demo';
       return KB.find(e => e.id === 'live_demo').answer;
+    }
+    if (/\b(new|start|onboard|beginning|first time|getting started|orientation|setup)\b/.test(q)) {
+      convCtx.lastId = 'onboarding';
+      return KB.find(e => e.id === 'onboarding').answer;
+    }
+    if (/\b(tip|tips|trick|tricks|best practice|pro tip|optimize|smarter)\b/.test(q)) {
+      convCtx.lastId = 'tips_tricks';
+      return KB.find(e => e.id === 'tips_tricks').answer;
+    }
+    if (/\b(daily|every day|morning routine|my day|day-to-day)\b/.test(q)) {
+      convCtx.lastId = 'daily_workflow';
+      return KB.find(e => e.id === 'daily_workflow').answer;
+    }
+    if (/\b(outreach|prospect|lead|cold email|find clinic|sales pipeline)\b/.test(q)) {
+      convCtx.lastId = 'outreach_workflow';
+      return KB.find(e => e.id === 'outreach_workflow').answer;
+    }
+    if (/\b(combine|chain|together|sequence|multi.?agent|workflow)\b/.test(q)) {
+      convCtx.lastId = 'agent_combos';
+      return KB.find(e => e.id === 'agent_combos').answer;
+    }
+    if (/\b(write.*task|task.*description|prompt|how.*write|better.*task|improve.*task)\b/.test(q)) {
+      convCtx.lastId = 'task_writing';
+      return KB.find(e => e.id === 'task_writing').answer;
     }
 
     const match = getBestMatch(input);
