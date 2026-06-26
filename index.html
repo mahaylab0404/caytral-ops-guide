@@ -1079,10 +1079,107 @@
   // ── conversational AI engine (no API) ──
 
   // ---------- NLP utils ----------
-  const STOP = new Set(['a','an','the','is','it','in','on','at','to','do','i','my','me','we','you','for','of','and','or','but','that','this','with','what','how','can','does','will','would','should','could','have','has','be','are','was','were','am','get','got','just','then','so','if','when','where','who','which','there','here','not','no','yes','ok','okay','please','about','tell','know','want','need','use','using','used','make','click','go','come','see','look','show','find','give','help']);
+  const STOP = new Set(['a','an','the','is','it','in','on','at','to','do','i','my','me','we','you','for','of','and','or','but','that','this','with','what','how','can','does','will','would','should','could','have','has','be','are','was','were','am','get','got','just','then','so','if','when','where','who','which','there','here','not','no','yes','ok','okay','please','about','tell','know','want','need','use','using','used','make','click','go','come','see','look','show','find','give','help','like','some','any','all','really','actually','kinda','sorta','basically','lol','haha','yo','um','uh']);
+
+  // Synonym map — any of these words collapse to the key
+  const SYNONYMS = {
+    'agent':'agent', 'agents':'agent', 'bot':'agent', 'bots':'agent', 'ai':'agent', 'worker':'agent', 'assistant':'agent',
+    'task':'task', 'tasks':'task', 'job':'task', 'jobs':'task', 'todo':'task', 'work':'task', 'request':'task', 'assignment':'task',
+    'run':'run', 'execute':'run', 'trigger':'run', 'fire':'run', 'launch':'run', 'start':'run', 'kick':'run', 'process':'run',
+    'error':'error', 'broke':'error', 'broken':'error', 'crash':'error', 'crashed':'error', 'fail':'error', 'failed':'error', 'failing':'error', 'down':'error', 'issue':'error', 'problem':'error', 'bug':'error',
+    'schedule':'schedule', 'scheduled':'schedule', 'automatic':'schedule', 'automatically':'schedule', 'auto':'schedule', 'cron':'schedule',
+    'email':'email', 'emails':'email', 'outreach':'email', 'message':'email', 'messages':'email', 'inbox':'email', 'dm':'email',
+    'money':'pricing', 'cost':'pricing', 'price':'pricing', 'pricing':'pricing', 'expensive':'pricing', 'cheap':'pricing', 'afford':'pricing', 'pay':'pricing', 'paying':'pricing',
+    'pause':'pause', 'paused':'pause', 'stop':'pause', 'stopped':'pause', 'freeze':'pause', 'frozen':'pause', 'disable':'pause',
+    'resume':'pause', 'restart':'pause', 'unpause':'pause', 'reactivate':'pause',
+    'output':'output', 'result':'output', 'results':'output', 'response':'output', 'answer':'output', 'produced':'output', 'generated':'output', 'wrote':'output', 'built':'output', 'made':'output',
+    'see':'output', 'view':'output', 'read':'output', 'check':'output', 'review':'output', 'look':'output',
+    'research':'research', 'investigate':'research', 'find':'research', 'search':'research', 'look up':'research', 'google':'research', 'dig':'research',
+    'write':'comms', 'draft':'comms', 'compose':'comms', 'create email':'comms',
+    'code':'engineer', 'coding':'engineer', 'program':'engineer', 'programming':'engineer', 'develop':'engineer', 'build':'engineer', 'script':'engineer', 'implement':'engineer',
+    'marketing':'content', 'copy':'content', 'blog':'content', 'post':'content', 'social':'content', 'content':'content',
+    'analyze':'analyst', 'analysis':'analyst', 'numbers':'analyst', 'math':'analyst', 'finance':'analyst', 'revenue':'analyst', 'metrics':'analyst', 'data':'analyst',
+    'quality':'qa_agent', 'proofread':'qa_agent', 'review':'qa_agent', 'test':'qa_agent', 'verify':'qa_agent', 'check':'qa_agent',
+    'orchestrate':'orchestrator', 'manage':'orchestrator', 'coordinate':'orchestrator', 'delegate':'orchestrator', 'plan':'orchestrator',
+    'how many':'frequency', 'often':'frequency', 'times':'frequency', 'limit':'frequency',
+    'tips':'tips_tricks', 'advice':'tips_tricks', 'tricks':'tips_tricks', 'suggest':'tips_tricks', 'recommend':'tips_tricks',
+    'begin':'onboarding', 'beginner':'onboarding', 'newbie':'onboarding', 'new here':'onboarding', 'first':'onboarding',
+    'combine':'multi_agent', 'together':'multi_agent', 'chain':'multi_agent', 'multiple':'multi_agent', 'both':'multi_agent',
+    'demo':'live_demo', 'showcase':'live_demo', 'presentation':'live_demo', 'show':'live_demo', 'demonstrate':'live_demo',
+  };
+
+  // Casual / slang normalization — fix before tokenizing
+  const NORMALIZATIONS = [
+    [/\bwdym\b/g,'what do you mean'],
+    [/\bidk\b/g,'i dont know'],
+    [/\bwym\b/g,'what do you mean'],
+    [/\bngl\b/g,''],
+    [/\btbh\b/g,''],
+    [/\bfr\b/g,''],
+    [/\bwtf\b/g,'what'],
+    [/\bomg\b/g,''],
+    [/\blmao\b/g,''],
+    [/\bbtw\b/g,''],
+    [/\bimo\b/g,''],
+    [/\bbc\b/g,'because'],
+    [/\bcuz\b/g,'because'],
+    [/\bcause\b/g,'because'],
+    [/\bgonna\b/g,'going to'],
+    [/\bwanna\b/g,'want to'],
+    [/\bgotta\b/g,'got to'],
+    [/\bdunno\b/g,'dont know'],
+    [/\bkinda\b/g,'kind of'],
+    [/\bsorta\b/g,'sort of'],
+    [/\bhow do i\b/g,'how'],
+    [/\bcan i\b/g,''],
+    [/\bwhat is\b/g,'what'],
+    [/\bwhat are\b/g,'what'],
+    [/\bhow does\b/g,'how'],
+    [/\bhow do\b/g,'how'],
+    [/\bwhere do\b/g,'where'],
+    [/\bwhere is\b/g,'where'],
+    [/\btell me about\b/g,'about'],
+    [/\bexplain\b/g,'what'],
+    [/\bwalk me through\b/g,'how'],
+    [/\bbreak.*down\b/g,'explain'],
+    [/\bi need to\b/g,''],
+    [/\bi want to\b/g,''],
+    [/\bi\'d like to\b/g,''],
+    [/\bi\'m trying to\b/g,''],
+    [/\bhelp me\b/g,''],
+    [/\bnot working\b/g,'error broken'],
+    [/\bnot running\b/g,'not running error'],
+    [/\bdoesnt work\b/g,'error broken'],
+    [/\bdoesn't work\b/g,'error broken'],
+    [/\bwont run\b/g,'not running error'],
+    [/\bwon't run\b/g,'not running error'],
+    [/\bkeeps failing\b/g,'error broken failed'],
+    [/\bkeeps erroring\b/g,'error broken'],
+    [/\bnothing happened\b/g,'task nothing happened queue'],
+    [/\bno output\b/g,'output result nothing'],
+    [/\bstuck\b/g,'error frozen broken'],
+  ];
+
+  // Simple edit-distance for typo tolerance (for short words)
+  function editDist(a, b) {
+    if (Math.abs(a.length - b.length) > 2) return 99;
+    const m = a.length, n = b.length;
+    const d = Array.from({length:m+1}, (_,i) => Array.from({length:n+1}, (_,j) => i===0?j:j===0?i:0));
+    for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+      d[i][j] = a[i-1]===b[j-1] ? d[i-1][j-1] : 1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);
+    return d[m][n];
+  }
+
+  function normalize(str) {
+    let s = str.toLowerCase();
+    for (const [pat, rep] of NORMALIZATIONS) s = s.replace(pat, rep);
+    return s;
+  }
 
   function tokenize(str) {
-    return str.toLowerCase().replace(/['']/g,'').replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(t => t.length > 1 && !STOP.has(t));
+    return normalize(str).replace(/['']/g,'').replace(/[^a-z0-9\s]/g,' ')
+      .split(/\s+/).filter(t => t.length > 1 && !STOP.has(t))
+      .map(t => SYNONYMS[t] || t);
   }
 
   function stem(w) {
@@ -1091,14 +1188,26 @@
     return w;
   }
 
+  // All tags for every entry — built once at startup
+  let ALL_TAGS = null;
+  function getAllTags() {
+    if (ALL_TAGS) return ALL_TAGS;
+    ALL_TAGS = new Set(KB.flatMap(e => e.tags));
+    return ALL_TAGS;
+  }
+
   function scoreEntry(entry, tokens) {
     const all = [...new Set([...tokens, ...tokens.map(stem)])];
     let s = 0;
-    for (const t of all) for (const tag of entry.tags) {
-      if (tag === t) s += 12;
-      else if (tag.startsWith(t) && t.length >= 4) s += 6;
-      else if (t.startsWith(tag) && tag.length >= 4) s += 6;
-      else if (tag.includes(t) && t.length >= 5) s += 3;
+    for (const t of all) {
+      for (const tag of entry.tags) {
+        if (tag === t) { s += 12; continue; }
+        if (tag.startsWith(t) && t.length >= 4) { s += 7; continue; }
+        if (t.startsWith(tag) && tag.length >= 4) { s += 7; continue; }
+        if (tag.includes(t) && t.length >= 5) { s += 4; continue; }
+        // Typo tolerance: only for longer words to avoid false positives
+        if (t.length >= 5 && tag.length >= 5 && editDist(t, tag) === 1) { s += 8; continue; }
+      }
     }
     return s;
   }
@@ -1107,55 +1216,55 @@
   const KB = [
     {
       id: 'overview',
-      tags: ['caytral','ops','cayesdesk','dashboard','overview','product','platform','system','what'],
+      tags: ['caytral','ops','cayesdesk','dashboard','overview','product','platform','system','what','explain','introduce','works','about','this','whole','thing','point'],
       answer: '**Caytral Ops** is your AI operations dashboard at ops.cayesdesk.com. You have 7 AI agents that do work on your behalf — you assign tasks, they execute, you review the output. It costs $350/mo and agents auto-run every weekday at 8AM EST.\n\nThink of it like having a team that shows up every morning and processes your to-do list automatically.',
       followUps: ['agent_picker','assign_task','schedule']
     },
     {
       id: 'pricing',
-      tags: ['cost','price','pricing','pay','350','month','monthly','budget','expensive','worth'],
+      tags: ['cost','price','pricing','pay','350','month','monthly','budget','expensive','worth','cheap','afford','subscription','fee','charge','how much'],
       answer: '**$350/month** gives you all 7 agents. They run automatically Mon–Fri at 8AM EST — no extra cost per run. You can also trigger them manually at any time with **Run now** at no extra charge.',
       followUps: ['schedule','run_now']
     },
     {
       id: 'orchestrator',
-      tags: ['orchestrator','ceo','coordinate','delegate','manager','multi','complex','project','plan','strategy','boss'],
+      tags: ['orchestrator','ceo','coordinate','delegate','manager','multi','complex','project','plan','strategy','boss','big','overall','manage','runs everything','in charge','control','whole project'],
       answer: '**Orchestrator — CEO (Opus 4.6)**\nYour manager agent. It breaks down complex projects and delegates to the other 6 agents automatically.\n\n**Use it when:** You have a big goal that requires multiple steps or multiple agents.\n\n**Example tasks:**\n→ "Plan a 3-month outreach campaign — research competitors, draft emails, build a content calendar"\n→ "Figure out why our conversion rate dropped and give me a fix plan"\n→ "Set up our CayesDesk onboarding process end-to-end"',
       followUps: ['assign_task','agent_picker']
     },
     {
       id: 'research',
-      tags: ['research','researcher','investigate','market','competitive','competitor','industry','data','gather','find','information','study','report','analysis','clinic','prospect'],
+      tags: ['research','researcher','investigate','market','competitive','competitor','industry','data','gather','find','information','study','report','analysis','clinic','prospect','look up','digging','digs','web','internet','searching','scout','explore'],
       answer: '**Research — Researcher (Sonnet 4.6)**\nDigs into topics, searches the web, and writes structured reports.\n\n**Example tasks:**\n→ "Find the top 10 medical clinics in Broward County still using manual phone scheduling"\n→ "Research our 3 biggest competitors — pricing, features, weaknesses"\n→ "What are the most common complaints about AI phone answering systems?"',
       followUps: ['assign_task','output_check']
     },
     {
       id: 'engineer',
-      tags: ['engineer','code','coding','bug','fix','technical','implement','feature','developer','build','script','api','webhook','database','backend'],
+      tags: ['engineer','code','coding','bug','fix','technical','implement','feature','developer','build','script','api','webhook','database','backend','program','dev','tech','software','broken code','function','html','css','javascript','python'],
       answer: '**Engineer — Engineer (Sonnet 4.6)**\nWrites code, fixes bugs, builds features, handles anything technical.\n\n**Example tasks:**\n→ "Add a webhook endpoint that receives Twilio call logs and saves them to the database"\n→ "Fix the bug where the booking confirmation email isn\'t sending"\n→ "Build a script that exports all call logs to a CSV"',
       followUps: ['assign_task','qa_agent']
     },
     {
       id: 'comms',
-      tags: ['comms','email','emails','draft','customer','outreach','message','communication','cold','response','follow','proposal','letter','write','send'],
+      tags: ['comms','email','emails','draft','customer','outreach','message','communication','cold','response','follow','proposal','letter','write','send','writing','reach out','contact','prospect email','follow up','followup','pitch','reply'],
       answer: '**Comms — General (Azure OpenAI)**\nDrafts all external-facing communication — emails, responses, proposals.\n\n**Example tasks:**\n→ "Write a cold email to a dental clinic front desk explaining CayesDesk and asking for a demo"\n→ "Draft a follow-up email for a lead who went quiet after our first call"\n→ "Write a professional response to a client complaint about call quality"',
       followUps: ['assign_task','qa_agent']
     },
     {
       id: 'analyst',
-      tags: ['analyst','cfo','finance','financial','budget','metrics','revenue','numbers','money','profit','loss','projection','breakdown','calculate','math','report','data','kpi','roi'],
+      tags: ['analyst','cfo','finance','financial','budget','metrics','revenue','numbers','money','profit','loss','projection','breakdown','calculate','math','report','data','kpi','roi','sales numbers','how much money','income','expenses','costs','growth','track'],
       answer: '**Analyst — CFO (Opus 4.6)**\nReviews numbers, analyzes business data, makes financial sense of things.\n\n**Example tasks:**\n→ "How many clients do we need to break even at $299/mo given $350/mo agent cost?"\n→ "Summarize our call volume metrics from last month and flag anything unusual"\n→ "Build a 6-month revenue projection assuming we close 2 new clients per month"',
       followUps: ['assign_task','output_check']
     },
     {
       id: 'content',
-      tags: ['content','cmo','marketing','blog','social','copy','landing','page','post','ad','caption','headline','brand','write','create','campaign'],
+      tags: ['content','cmo','marketing','blog','social','copy','landing','page','post','ad','caption','headline','brand','write','create','campaign','linkedin','instagram','twitter','tiktok','website','seo','article','announcement','newsletter'],
       answer: '**Content — CMO (Sonnet 4.6)**\nCreates marketing copy, blog posts, social content, landing pages.\n\n**Example tasks:**\n→ "Write a landing page headline + 3 benefit bullets for CayesDesk targeting busy clinic owners"\n→ "Write 5 LinkedIn posts about how AI is changing medical front desks"\n→ "Create a 4-email nurture sequence for clinic owners who downloaded our guide"',
       followUps: ['assign_task','qa_agent']
     },
     {
       id: 'qa_agent',
-      tags: ['qa','quality','review','check','verify','proofread','test','approve','feedback','critique','catch','error','mistake','wrong'],
+      tags: ['qa','quality','review','check','verify','proofread','test','approve','feedback','critique','catch','error','mistake','wrong','double check','second opinion','look over','before send','before sending','critique','evaluate','assess','rate'],
       answer: '**QA — QA (Opus 4.6)**\nReviews output from other agents — catches errors, checks logic, improves quality.\n\n**Example tasks:**\n→ "Review this email from Comms — check tone, accuracy, and anything that might turn a client off"\n→ "Review this code from Engineer for bugs or security issues before we deploy"\n→ "Does this research report from the Research agent look accurate and complete?"',
       followUps: ['assign_task','output_check']
     },
@@ -1167,13 +1276,13 @@
     },
     {
       id: 'assign_task',
-      tags: ['assign','task','create','give','new','job','send','how','start','begin','plus','button'],
+      tags: ['assign','task','create','give','new','job','send','how','start','begin','plus','button','add task','queue','submit','make task','kick off','set up task','put in','hand off'],
       answer: 'Here\'s how to assign a task:\n\n1. Go to **ops.cayesdesk.com → Agents**\n2. Find the right agent for the job\n3. Click **+** on that agent\'s row\n4. Write a **title** (short label) and a detailed **description**\n5. Click **Create** — task is queued\n6. Click **▶ Run now** to process immediately, or wait for 8AM\n\n**Pro tip:** The description is everything. Be specific — include context, what you already know, and what format you want back. Vague in = vague out.',
       followUps: ['run_now','output_check','schedule']
     },
     {
       id: 'run_now',
-      tags: ['run','now','immediately','trigger','manual','force','skip','wait','instant','right away'],
+      tags: ['run','now','immediately','trigger','manual','force','skip','wait','instant','right away','dont wait','asap','urgent','right now','today','quick','fast','speed'],
       answer: '**Run now (▶)** kicks the agent off immediately — no waiting for 8AM.\n\nClick it on the right side of any agent\'s row after assigning a task. The dot turns blue and starts pulsing — that means it\'s running.',
       followUps: ['output_check','status_dots']
     },
@@ -1197,7 +1306,7 @@
     },
     {
       id: 'status_dots',
-      tags: ['status','dot','dots','color','green','blue','yellow','red','gray','grey','badge','indicator','mean','light'],
+      tags: ['status','dot','dots','color','green','blue','yellow','red','gray','grey','badge','indicator','mean','light','circle','colored','colours','blinking','pulsing','flashing','spinning'],
       answer: 'Each dot tells you the agent\'s state:\n\n🟢 **Green** — Idle and ready. Assign a task anytime.\n🔵 **Blue (pulsing)** — Running right now. Open Runs tab to watch live.\n🟡 **Yellow** — Paused. Click Resume to wake it up.\n🔴 **Red** — Error. Read the logs, fix the cause, then Clear error.\n⚫ **Gray** — Task queued but not started yet. Click Run now.',
       followUps: ['clear_error','run_now','pause']
     },
@@ -1215,13 +1324,13 @@
     },
     {
       id: 'output_check',
-      tags: ['output','result','see','what','did','transcript','log','ran','runs','history','produced','check','view','read','response'],
+      tags: ['output','result','see','what','did','transcript','log','ran','runs','history','produced','check','view','read','response','where','find results','completed','done','finished','report back','read back','show me','gives me'],
       answer: 'To see what an agent did:\n\n1. Click the **agent name** to open its detail page\n2. Go to the **Runs tab**\n3. Click any completed run\n\nYou\'ll see:\n→ Full conversation transcript\n→ Every tool call the agent made\n→ Final output\n→ Token usage for that run',
       followUps: ['qa_agent','bad_output']
     },
     {
       id: 'error_troubleshoot',
-      tags: ['error','broken','fail','failed','stuck','problem','issue','not working','trouble','diagnose','why','cause'],
+      tags: ['error','broken','fail','failed','stuck','problem','issue','not working','trouble','diagnose','why','cause','crash','went wrong','messed up','acting up','freaking out','doesnt work','wont work','stopped working','dead','offline'],
       answer: 'When an agent errors, here\'s how to diagnose it:\n\n1. Click the agent → **Runs tab** → click the failed run\n2. Read the full error message at the bottom\n\n**Common causes:**\n→ **API key expired** — rotate the key in settings\n→ **Rate limit hit** — wait 1–5 minutes and try again\n→ **Bad task description** — the agent got confused; rewrite it more clearly\n→ **Network timeout** — transient issue; just retry\n\nOnce fixed: click **Clear error** to bring the agent back online.',
       followUps: ['clear_error','bad_output']
     },
