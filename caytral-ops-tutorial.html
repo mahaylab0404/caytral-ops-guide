@@ -352,6 +352,122 @@
       color: var(--accent); font-family: "SF Mono","Fira Code",monospace;
     }
 
+    /* ── chat widget ── */
+    .chat-fab {
+      position: fixed; bottom: 28px; right: 28px; z-index: 100;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--accent); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; box-shadow: 0 4px 20px rgba(122,162,247,.4);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .chat-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(122,162,247,.55); }
+    .chat-fab .fab-badge {
+      position: absolute; top: -2px; right: -2px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--success); border: 2px solid var(--bg);
+      font-size: 9px; font-weight: 700; color: #0e1014;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .chat-panel {
+      position: fixed; bottom: 90px; right: 28px; z-index: 100;
+      width: 360px; max-height: 520px;
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: var(--radius); display: flex; flex-direction: column;
+      box-shadow: 0 8px 40px rgba(0,0,0,.5);
+      transform: translateY(16px) scale(.97); opacity: 0;
+      pointer-events: none; transition: transform .22s, opacity .22s;
+    }
+    .chat-panel.open {
+      transform: translateY(0) scale(1); opacity: 1; pointer-events: all;
+    }
+    .chat-header {
+      padding: 14px 16px; border-bottom: 1px solid var(--border-soft);
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    }
+    .chat-header-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success); animation: pulse 1.4s infinite; flex-shrink: 0;
+    }
+    .chat-header-title { font-weight: 700; font-size: 14px; flex: 1; }
+    .chat-header-sub { font-size: 11px; color: var(--text-faint); }
+    .chat-close {
+      background: none; border: none; color: var(--text-faint);
+      cursor: pointer; font-size: 16px; padding: 2px 4px;
+      border-radius: 4px; transition: color .15s;
+    }
+    .chat-close:hover { color: var(--text); }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 14px 14px 8px;
+      display: flex; flex-direction: column; gap: 10px;
+      min-height: 0;
+    }
+    .chat-msg { display: flex; flex-direction: column; gap: 3px; }
+    .chat-msg.user { align-items: flex-end; }
+    .chat-msg.bot  { align-items: flex-start; }
+    .chat-bubble {
+      max-width: 88%; padding: 9px 13px; border-radius: 12px;
+      font-size: 13px; line-height: 1.5; word-break: break-word;
+    }
+    .chat-msg.user .chat-bubble {
+      background: var(--accent-soft); border: 1px solid var(--accent-dim);
+      color: var(--text); border-bottom-right-radius: 4px;
+    }
+    .chat-msg.bot .chat-bubble {
+      background: var(--panel-elev); border: 1px solid var(--border);
+      color: var(--text-dim); border-bottom-left-radius: 4px;
+    }
+    .chat-msg.bot .chat-bubble strong { color: var(--text); }
+    .chat-bubble.thinking { color: var(--text-faint); font-style: italic; }
+    .chat-bubble .dot-typing {
+      display: inline-flex; gap: 3px; align-items: center; height: 14px;
+    }
+    .chat-bubble .dot-typing span {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--text-faint); animation: blink 1.2s infinite;
+    }
+    .chat-bubble .dot-typing span:nth-child(2) { animation-delay: .2s; }
+    .chat-bubble .dot-typing span:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink {
+      0%,80%,100% { opacity: .25; } 40% { opacity: 1; }
+    }
+
+    .chat-suggestions {
+      padding: 0 14px 10px; display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .chat-suggestion {
+      background: var(--bg-soft); border: 1px solid var(--border-soft);
+      color: var(--text-dim); border-radius: 20px;
+      padding: 4px 10px; font-size: 12px; cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .chat-suggestion:hover { border-color: var(--accent-dim); color: var(--accent); }
+
+    .chat-input-row {
+      padding: 10px 12px; border-top: 1px solid var(--border-soft);
+      display: flex; gap: 8px; flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1; background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-size: 13px; padding: 8px 12px; outline: none;
+      font-family: inherit; resize: none;
+      transition: border-color .15s;
+    }
+    .chat-input:focus { border-color: var(--accent-dim); }
+    .chat-input::placeholder { color: var(--text-faint); }
+    .chat-send {
+      background: var(--accent); border: none; color: #0e1014;
+      border-radius: var(--radius-sm); width: 36px; height: 36px;
+      cursor: pointer; font-size: 15px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      align-self: flex-end; transition: opacity .15s;
+    }
+    .chat-send:hover { opacity: .85; }
+    .chat-send:disabled { opacity: .4; cursor: default; }
+
     /* ── scrollbar ── */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -905,10 +1021,12 @@
 </div>
 
 <script>
+  // ── accordion ──
   document.querySelectorAll('.faq-q').forEach(btn => {
     btn.addEventListener('click', () => btn.parentElement.classList.toggle('open'));
   });
 
+  // ── nav highlight ──
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('.nav-link');
   const observer = new IntersectionObserver(entries => {
@@ -921,6 +1039,160 @@
     });
   }, { threshold: 0.3 });
   sections.forEach(s => observer.observe(s));
+
+  // ── chat assistant ──
+  const GEMINI_KEY = 'AIzaSyBz27Z4dIt88WmlaTvBN7R5TexIhCA8sGo';
+  const SYSTEM_PROMPT = `You are a helpful assistant embedded in the Caytral Ops tutorial page for CayesDesk — a product that provides AI phone agents for medical clinics in South Florida.
+
+You know everything about the Caytral Ops dashboard at ops.cayesdesk.com. Here is the full knowledge base:
+
+AGENTS (7 total, $350/mo, run Mon–Fri 8AM EST):
+- Orchestrator (CEO, Opus 4.6): Coordinates all agents, delegates tasks, makes strategic decisions. Best for complex multi-step projects.
+- Research (Researcher, Sonnet 4.6): Investigates topics, gathers data, produces research reports. Best for market research, competitive analysis.
+- Engineer (Engineer, Sonnet 4.6): Writes and fixes code, implements features. Best for code changes, bug fixes.
+- Comms (General, Azure OpenAI): Drafts emails, messages, customer-facing content. Best for email drafts, customer responses.
+- Analyst (CFO, Opus 4.6): Reviews metrics, budgets, analytical reports. Best for financial analysis, data-driven decisions.
+- Content (CMO, Sonnet 4.6): Marketing copy, blog posts, social content. Best for landing pages, marketing copy.
+- QA (QA, Opus 4.6): Reviews work, tests implementations. Best for code review, quality checks.
+
+ACTION BUTTONS (on right side of each agent row):
+- + (Assign Task): Opens dialog to create and assign a task. Queued until next run or Run now.
+- ▶ (Run now): Triggers agent immediately, processes queued tasks right away.
+- ⏸ (Pause): Agent stops running on schedule until resumed.
+- ✓ (Clear error): Resets error state — only appears when agent is in error. Fix root cause first.
+- ··· (More): Duplicate Agent, Copy Agent ID, Reset Sessions, Terminate.
+
+STATUS DOTS:
+- Green (Active/Idle): Healthy, ready to work. No action needed.
+- Blue pulsing (Running): Executing a task. Check Runs tab to see live output.
+- Yellow (Paused): Won't run until resumed. Click Resume.
+- Red (Error): Read the logs, fix the cause, then click Clear error.
+- Gray (Queued): Task assigned but not started. Click Run now or wait for 8AM.
+
+AUTOMATED SCHEDULE: Every weekday at 8AM EST, all agents check their queue and process tasks. Use Run now to skip the wait.
+
+ROUTINES: Go to Routines page → New Routine → set title, description, assignee agent, schedule → Save. Runs automatically.
+
+HOW TO SEND A TASK: Go to Agents → find the right agent → click + → fill in title and detailed description → Create → Run now (or wait for 8AM).
+
+HOW TO SEE WHAT AN AGENT DID: Click agent name → Runs tab → click the run → see full transcript, tool calls, output, token usage.
+
+TROUBLESHOOTING:
+- No buttons visible: Must be on /agents page. Widen browser if on small screen.
+- Agent stuck in error: Read the run logs first, fix root cause (API key, rate limit, bad task), then Clear error.
+- Not running on schedule: Check not paused, check budget not exhausted, verify tasks are queued.
+- Task assigned but nothing happened: Click Run now. Tasks queue until next run.
+- Bad output quality: Be more specific in task description. Include context, desired format, audience. Use the right agent for the job.
+
+Answer questions conversationally and helpfully. Keep answers concise. If someone asks which agent to use for a specific task, recommend one with a brief reason. If you don't know something specific about Caytral Ops, say so honestly.`;
+
+  const chatHistory = [];
+  const messagesEl = document.getElementById('chatMessages');
+  const inputEl = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('chatSend');
+  const suggestionsEl = document.getElementById('chatSuggestions');
+
+  function appendMsg(role, text, isTyping = false) {
+    const wrap = document.createElement('div');
+    wrap.className = `chat-msg ${role}`;
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble' + (isTyping ? ' thinking' : '');
+    if (isTyping) {
+      bubble.innerHTML = '<span class="dot-typing"><span></span><span></span><span></span></span>';
+    } else {
+      bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    }
+    wrap.appendChild(bubble);
+    messagesEl.appendChild(wrap);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return wrap;
+  }
+
+  async function sendMessage(text) {
+    if (!text.trim()) return;
+    suggestionsEl.style.display = 'none';
+    appendMsg('user', text);
+    chatHistory.push({ role: 'user', parts: [{ text }] });
+    inputEl.value = '';
+    sendBtn.disabled = true;
+
+    const thinkingEl = appendMsg('bot', '', true);
+
+    try {
+      const body = {
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: chatHistory
+      };
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+      );
+      const data = await res.json();
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I couldn\'t get a response. Try again.';
+      thinkingEl.remove();
+      appendMsg('bot', reply);
+      chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+    } catch (e) {
+      thinkingEl.remove();
+      appendMsg('bot', 'Connection error — make sure you\'re online and try again.');
+    }
+
+    sendBtn.disabled = false;
+    inputEl.focus();
+  }
+
+  sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(inputEl.value); }
+  });
+
+  document.querySelectorAll('.chat-suggestion').forEach(btn => {
+    btn.addEventListener('click', () => sendMessage(btn.textContent));
+  });
+
+  const fab = document.getElementById('chatFab');
+  const panel = document.getElementById('chatPanel');
+  fab.addEventListener('click', () => {
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) inputEl.focus();
+  });
+  document.getElementById('chatCloseBtn').addEventListener('click', () => panel.classList.remove('open'));
 </script>
+
+<!-- chat fab -->
+<button class="chat-fab" id="chatFab" title="Ask a question">
+  💬
+  <span class="fab-badge">AI</span>
+</button>
+
+<!-- chat panel -->
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-header-dot"></div>
+    <div>
+      <div class="chat-header-title">Ops Assistant</div>
+      <div class="chat-header-sub">Ask me anything about Caytral Ops</div>
+    </div>
+    <button class="chat-close" id="chatCloseBtn">✕</button>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">
+      <div class="chat-bubble">Hey Mahayla 👋 I know everything about Caytral Ops. Ask me which agent to use, how a button works, or what to do if something goes wrong.</div>
+    </div>
+  </div>
+
+  <div class="chat-suggestions" id="chatSuggestions">
+    <button class="chat-suggestion">Which agent do I use for emails?</button>
+    <button class="chat-suggestion">How do I fix an error?</button>
+    <button class="chat-suggestion">What happens at 8AM?</button>
+    <button class="chat-suggestion">What does Run now do?</button>
+  </div>
+
+  <div class="chat-input-row">
+    <textarea class="chat-input" id="chatInput" placeholder="Ask a question…" rows="1"></textarea>
+    <button class="chat-send" id="chatSend">↑</button>
+  </div>
+</div>
 </body>
 </html>
